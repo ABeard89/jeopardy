@@ -1,0 +1,1122 @@
+* {
+	/***** Position *****/
+	/***** Style *****/
+}
+/* High Level Objects */
+html {
+	/***** Position *****/
+	/***** Style *****/
+	background-color: gray;
+}
+p,
+span {
+	-webkit-margin-before: 0px;
+	-webkit-margin-after: 0px;
+}
+textarea {
+	color: black;
+}
+
+html,
+body,
+#bodywrap {
+	/***** Position *****/
+	display: block;
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+	/***** Style *****/
+}
+
+#bodywrap {
+	/***** Position *****/
+	position: relative;
+	/***** Style *****/
+	background-color: blue;
+}
+
+/* Frequently Used Objects */
+
+.gameOverlay {
+	/***** Position *****/
+	position: relative;
+	width: 100%;
+	height: 100%;
+/*
+	top: 0px;
+	left: 0px;
+*/
+	box-sizing: border-box;
+	/***** Style *****/
+	color: white;
+}
+
+.regularButton {
+	/***** Position *****/
+	display: inline-block;
+	width: auto;
+	margin: 5px;
+	padding: 0px 5px;
+	box-sizing: border-box;
+	position: relative;
+	z-index: 10;
+	/***** Style *****/
+	background-color: darkgray;
+	border: 5px solid black;
+	border-radius: 10px;
+	font-size: 300%;
+	overflow: hidden;
+/* 	line-height: 90%; */
+	vertical-align: top;
+}
+.regularButton:active {
+	/***** Position *****/
+	z-index: 9;
+	/***** Style *****/
+	box-shadow: inset 0px 0px 15px black;
+}
+
+.regularButton:active {
+	/***** Position *****/
+	/***** Style *****/
+}
+.regularButton span {
+	vertical-align: text-top;
+}
+
+.gameTeam {
+	/***** Position *****/
+	padding: 5px;
+	position: relative;
+	overflow: hidden;
+	box-sizing: border-box;
+	height: 80px;
+	/***** Style *****/
+	border: 1px solid black;
+	box-shadow: inset 0px 0px 1px 1px black;
+	font-size: 150%;
+}
+.gameTeam.deleted {
+	border-color: red;
+	background-color: gray;
+	box-shadow: inset 0px 0px 3px red;
+}
+.gameTeam:after {
+	content: '';
+	display: block;
+	clear: both;
+}
+.gameTeam > * {
+	/***** Position *****/
+	display: inline-block;
+	box-sizing: border-box;
+	float: left;
+	padding: 5px;
+	vertical-align: middle;
+	/***** Style *****/
+	/* Color is controlled by the GameController in the app script. */
+}
+.gameTeam .playMode {
+	/***** Position *****/
+	float: right;
+	width: 30%;
+	padding: 0px;
+	/***** Style *****/
+}
+.gameTeam .playMode > * {
+	float: right;
+}
+.gameTeam .teamInfo {
+	padding: 0px;
+	max-width: 70%;
+	height: 100%;
+	overflow-x: auto;
+	white-space: pre;
+}
+.gameTeam .teamInfoInsert {
+	display: inline-block;
+	box-sizing: border-box;
+	padding: 5px;
+	height: 100%;
+}
+.gameTeam .teamInfoInsert > * {
+	/***** Position *****/
+/* 	margin: 2px 0px; */
+	/***** Style *****/
+}
+.gameTeam .teamLabel:before {
+	/***** Position *****/
+	margin-right: 0.5em;
+	/***** Style *****/
+	/* Color is controlled by the GameController in the app script. */
+	content: 'Name:';
+	text-decoration: underline;
+	font-weight: 700;
+	font-style: italic;
+}
+.gameTeam .teamPoints:before {
+	/***** Position *****/
+	margin-right: 0.5em;
+	/***** Style *****/
+	/* Color is controlled by the GameController in the app script. */
+	content: 'Points:';
+	text-decoration: underline;
+	font-weight: 700;
+	font-style: italic;
+}
+.gameTeam .teamLabel {
+	/***** Position *****/
+	display: block;
+	
+	/***** Style *****/
+}
+.gameTeam .regularButton {
+	/***** Position *****/
+	/***** Style *****/
+	font-size: 75%;
+}
+.gameTeam input {
+	/***** Position *****/
+/* 	float: left; */
+	clear: both;
+	display: block;
+	height: 50%;
+	/***** Style *****/
+	border: none;
+	padding: 0px;
+	margin: 0px;
+}
+.gameTeam select {
+	display: inline-block;
+/* 	float: right; */
+	vertical-align: top;
+	font-size: 75%;
+	box-sizing: border-box;
+	padding: 5px;
+}
+.gameTeam .errorMsgDiv {
+	display: inline-block;
+	vertical-align: top;
+	box-sizing: border-box;
+	padding: 5px;
+/* 	float: right; */
+/*
+	height: 100%;
+	width: 20%;
+*/
+	font-size: 100%;
+	margin: 0px;
+}
+
+.dataSetContainer {
+	/***** Position *****/
+	box-sizing: border-box;
+	display: block;
+	height: auto;
+	width: 100%;
+	height: auto;
+	overflow-y: auto;
+	
+	/***** Style *****/
+}
+
+.gameDataSet,
+.gameDataSet * {
+	box-sizing: border-box;
+}
+.gameDataSet {
+	width: 50%;
+	min-width: 300px;
+	display: inline-block;
+	height: 6em;
+	border: 1px solid black;
+	box-shadow: inset 0px 0px 5px 2px black;
+}
+.gameDataSet .editMode,
+.gameDataSet .playMode {
+	display: inline-block;
+	box-sizing: border-box;
+	vertical-align: top;
+	width: 25%;
+	height: 100%;
+}
+.gameDataSet .editMode .editModeDivInsert {
+	height: 100%;
+	padding: 5px;
+}
+.gameDataSet .editMode .editModeDivInsert .regularButton {
+	width: 100%;
+	height: 50%;
+/* 	margin: 5px 0px; */
+	margin: 0px;
+	border-width: 2px;
+}
+.gameDataSet .playMode .playModeDivInsert {
+	box-sizing: border-box;
+	padding: 5px;
+	width: 100%;
+	height: 100%;
+}
+.gameDataSet .playMode .playModeDivInsert .regularButton {
+	margin: 0px;
+	padding: 2px;
+	width: 100%;
+/* 	height: 100%; */
+}
+.gameDataSet .nameDisplayDiv {
+	display: inline-block;
+	width: 50%;
+	height: 100%;
+	vertical-align: top;
+}
+.gameDataSet .nameDisplayDiv .nameDisplayDivInsert {
+	width: 100%;
+	height: 100%;
+	max-height: 100%;
+	overflow-x: auto;
+	padding: 5px;
+}
+
+.gameDataSet .nameDisplayDiv .nameDisplayDivInsert .dataSetNameInput {
+	width: 100%;
+	height: 50%;
+	display: inline-block;
+	color: black;
+	border: 0px;
+	padding: 1px;
+	margin: 0px;
+}
+.gameDataSet .nameDisplayDiv .nameDisplayDivInsert .dataSetNameDisplay {
+	width: 100%;
+	height: 100%;
+	display: inline-block;
+	word-wrap: normal;
+}
+.gameDataSet .nameDisplayDiv .nameDisplayDivInsert .dataSetNameDisplay .dataSetNameDisplayInsert::before {
+	content: 'Name:';
+	margin-right: 0.5em;
+	display: inline-block;
+/* 	white-space: pre; */
+	text-decoration: underline;
+	font-style: italic;
+	font-weight: bold;
+}
+.gameDataSet .sizeDisplayDiv {
+	display: inline-block;
+	width: 25%;
+	height: 100%;
+	vertical-align: top;
+}
+.gameDataSet .sizeDisplayDiv .sizeDisplayDivInsert {
+	height: 100%;
+}
+.gameDataSet .sizeDisplayDiv .sizeDisplayDivInsert .rowDisplayDiv {
+	height: 50%;
+	padding: 5px;
+	white-space: nowrap;
+}
+.gameDataSet .sizeDisplayDiv .sizeDisplayDivInsert .rowDisplayDiv .rowDisplayDivInsert,
+.gameDataSet .sizeDisplayDiv .sizeDisplayDivInsert .colDisplayDiv .colDisplayDivInsert {
+	vertical-align: middle;
+	display: inline-block;
+/* 	float: right; */
+	width: 100%;
+	text-align: right;
+}
+.gameDataSet .sizeDisplayDiv .sizeDisplayDivInsert .colDisplayDiv {
+	height: 50%;
+	padding: 5px;
+	white-space: nowrap;
+}
+.gameDataSet .sizeDisplayDiv .sizeDisplayDivInsert .rowDisplayDiv .rowDisplayDivInsert::before {
+	content: 'Rows:';
+	display: inline-block;
+/* 	white-space: pre; */
+	font-style: italic;
+	text-decoration: underline;
+	font-weight: bold;
+	float: left;
+}
+.gameDataSet .sizeDisplayDiv .sizeDisplayDivInsert .colDisplayDiv .colDisplayDivInsert::before {
+	content: 'Cols:';
+	display: inline-block;
+/* 	white-space: pre; */
+	font-style: italic;
+	text-decoration: underline;
+	font-weight: bold;
+	float: left;
+}
+.gameDataSet.deletedDataSet {
+	box-shadow: inset 0px 0px 5px 2px red;
+}
+.gameDataSet.current {
+	box-shadow: inset 0px 0px 5px 5px lightgreen;
+}
+
+/* Overlay-specific Items */
+
+#StartScreenOvly {
+	/***** Position *****/
+	/***** Style *****/
+	text-align: center;
+}
+#StartScreenOvly .gameTitle {
+	/***** Position *****/
+	width: 100%;
+	height: 75%;
+	box-sizing: border-box;
+	display: table;
+	/***** Style *****/
+	text-align: center;
+	font-size: 700%;
+}
+#StartScreenOvly .gameTitle span {
+	display: table-cell;
+	vertical-align: middle;
+}
+#StartScreenOvly .buttonContainer {
+	display: block;
+	width: 100%;
+	height: 30%;
+/* 	padding: 50px 0px; */
+	position: absolute;
+	bottom: 0px;
+	overflow-x: auto;
+	white-space: nowrap;
+}
+#StartScreenOvly .buttonContainer button {
+	vertical-align: middle;
+}
+#SelectQuestionScreenOvly div.jeopBoard,
+#SelectQuestionScreenOvly table {
+	/***** Position *****/
+	display: block;
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+	/***** Style *****/
+	background-color: darkgray;
+}
+
+/*************************************/
+
+#SelectQuestionScreenOvly table thead,
+#SelectQuestionScreenOvly table tfoot,
+#SelectQuestionScreenOvly table tbody {
+	/***** Position *****/
+	display: block;
+	width: 100%;
+	height: auto;
+	margin: 0px;
+	padding: 0px;
+	box-sizing: border-box;
+	border-spacing: 5px;
+	/***** Style *****/
+	background-color: darkgray;
+}
+
+#SelectQuestionScreenOvly .gameCategories,
+#SelectQuestionScreenOvly .jeopQuestionRow {
+	/***** Position *****/
+	display: block;
+	width: 100%;
+	padding: 0px;
+	margin: 0px 0px;
+	/***** Style *****/
+	text-align: center;
+}
+#SelectQuestionScreenOvly .gameCategories {
+	/***** Position *****/
+	margin-top: 0px;
+	padding-top: 0px;
+	/***** Style *****/
+}
+#SelectQuestionScreenOvly .gameCategories th .editMode {
+	font-size: inherit;
+}
+#SelectQuestionScreenOvly .gameCategories th .editMode .editColumnName {
+	display: block;
+	width: 100%;
+	height: 100%;
+	padding: 0px;
+	margin: 0px;
+	box-sizing: border-box;
+	resize: none;
+	text-align: center;
+}
+#SelectQuestionScreenOvly .gameCategories th button {
+	vertical-align: bottom;
+	font-size: inherit;
+	position: relative;
+}
+#SelectQuestionScreenOvly .gameCategories th button span {
+	display: inline-block;
+	padding: 0px;
+	margin: 0px;
+	color: rgba(0,0,0,0.25);
+	vertical-align: bottom;
+	font-size: inherit;
+/*
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+*/
+	width: 100%;
+	text-align: center;
+}
+/*#SelectQuestionScreenOvly .gameCategories::before {
+	/***** Position *****
+	display: block;
+	box-sizing: border-box;
+	content: '';
+	height: 10px;
+	padding: 0px;
+	margin: 0px;
+	/***** Style *****
+}*/
+#SelectQuestionScreenOvly .gameCategories th,
+#SelectQuestionScreenOvly .jeopQuestionRow td,
+#SelectQuestionScreenOvly .jeopQuestionRow td button {
+	/***** Position *****/
+	display: inline-block;
+	margin: 0px 0px;
+	padding: 0px;
+	box-sizing: border-box;
+	/***** Style *****/
+	font-size: 200%;
+	border: 5px solid black;
+	border-radius: 5px;
+}
+#SelectQuestionScreenOvly .gameCategories th {
+	/***** Position *****/
+	display: inline-block;
+	margin: 0px;
+	padding: 5px;
+	/***** Style *****/
+	background-color: none;
+	overflow: hidden;
+	text-align: center;
+	border: none;
+	border-radius: 0px;
+}
+#SelectQuestionScreenOvly .gameCategories th .catDiv {
+	/***** Position *****/
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	/***** Style *****/
+	background-color: blue;
+	text-align: center;
+	border: 5px solid black;
+	border-radius: 5px;
+}
+#SelectQuestionScreenOvly .gameCategories th .catDiv .catDivInsert{
+	/***** Position *****/
+	vertical-align: top;
+	/***** Style *****/
+}
+#SelectQuestionScreenOvly .jeopQuestionRow td {
+	/***** Position *****
+	margin: 0px 10px;
+	/***** Style *****
+	border-collapse: separate;
+	border-spacing: 10px;*/
+	margin: 0px;
+	padding: 5px;
+	border: 0px;
+}
+
+#SelectQuestionScreenOvly .jeopQuestionRow td button {
+	/***** Position *****/
+	display: block;
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	height: 100%;
+	/***** Style *****/
+	background-color: blue;
+	color: white;
+	vertical-align: middle;
+}
+#SelectQuestionScreenOvly .jeopQuestionRow td button span {
+	vertical-align: text-top;
+}
+#SelectQuestionScreenOvly .jeopQuestionRow td.answeredQ button {
+	/***** Position *****/
+	/***** Style *****/
+	background-color: black;
+}
+#SelectQuestionScreenOvly .jeopQuestionRow td.previousQ button {
+	/***** Position *****/
+	/***** Style *****/
+	border-color: lightgreen;
+	color: lightgreen;
+	box-shadow: inset 0px 0px 10px 7px lightgreen;
+}
+#SelectQuestionScreenOvly .editMode * {
+	box-sizing: border-box;
+}
+#SelectQuestionScreenOvly .editMode {
+	height: 100%;
+	width: 100%;
+}
+#SelectQuestionScreenOvly .editMode:after {
+	content: '';
+	display: block;
+	clear: both;
+}
+#SelectQuestionScreenOvly .editMode .editRowButtons {
+	width: 38%;
+	height: 100%;
+	display: inline-block;
+/* 	float: left; */
+	margin: 0px 1%;
+}
+#SelectQuestionScreenOvly .editMode .editQuestionDiv {
+	height: 100%;
+	width: 58%;
+	margin: 0px 1%;
+	display: inline-block;
+	vertical-align: top;
+}
+#SelectQuestionScreenOvly .editMode .editQuestionDisplay {
+	width: 100%;
+	height: 100%;
+/* 	float: right; */
+	background-color: white;
+	color: black;
+	text-align: left;
+	vertical-align: text-top;
+}
+#SelectQuestionScreenOvly .editMode .editRowButtons {
+	text-align: left;
+}
+#SelectQuestionScreenOvly .editMode .editRowButtons .grabHandle {
+	display: inline-block;
+	box-sizing: border-box;
+	width: 20%;
+	height: 100%;
+	float: left;
+	border: 5px solid black;
+	background-color: blue;
+	border-radius: 5px;
+	text-align: center;
+	position: relative;
+}
+#SelectQuestionScreenOvly .editMode .editRowButtons .grabHandle span {
+	display: inline-block;
+	vertical-align: sub;
+}
+/*
+#SelectQuestionScreenOvly .editMode .editRowButtons .grabHandle:before {
+	content: '\25b2';
+	display: block;
+	height: 50%;
+}
+#SelectQuestionScreenOvly .editMode .editRowButtons .grabHandle:after {
+	content: '\25bc';
+	display: block;
+	height: 50%;
+}
+*/
+#SelectQuestionScreenOvly .editMode .editRowButtons .editButton,
+#SelectQuestionScreenOvly .editMode .editRowButtons .doneButton,
+#SelectQuestionScreenOvly .editMode .editRowButtons .deleteButton {
+	margin: 0px;
+	height: 50%;
+	display: inline-block;
+	width: 39%;
+	box-sizing: border-box;
+}
+#SelectQuestionScreenOvly .editMode .editRowButtons .editButton,
+#SelectQuestionScreenOvly .editMode .editRowButtons .doneButton {
+	margin-left: 2%;
+}
+#SelectQuestionScreenOvly .editMode .editRowButtons .wrapValue {
+	height: 50%;
+	margin: 0px;
+	margin-left: 2%;
+	padding: 5px;
+	display: inline-block;
+	width: 78%;
+	box-sizing: border-box;
+}
+#SelectQuestionScreenOvly .editMode .editRowButtons .wrapValue .displayRowValue:before {
+	content: 'Points:';
+	margin-right: 5px;
+	text-decoration: underline;
+	font-size: inherit;
+	font-style: italic;
+}
+#SelectQuestionScreenOvly .editMode .editRowButtons .wrapValue .displayRowValue {
+	display: inline-block;
+	box-sizing: border-box;
+	width: auto;
+	height: auto;
+	margin: 0px;
+	padding: 0px;
+}
+#SelectQuestionScreenOvly .editMode .editRowButtons .wrapValue .editRowValue {
+	display: inline-block;
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+	padding: 0px;
+	box-sizing: border-box;
+	color: black;
+}
+#SelectQuestionScreenOvly th {
+	position: relative;
+}
+#SelectQuestionScreenOvly th .editMode {
+	display: block;
+	height: calc(100% - 10px);
+	width: calc(100% - 10px);
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	
+}
+#SelectQuestionScreenOvly th .editMode button {
+	display: block;
+	height: 100%;
+	width: 100%;
+	background-color: rgba(0,0,0,0);
+	border: none;
+}
+#SelectQuestionScreenOvly .gameCategories th.selectedCol .catDiv {
+	border-color: red;
+}
+
+/*************************************/
+
+#AnswerQuestionScreenOvly .questionToAnswer {
+	/***** Position *****/
+	display: inline-block;
+	width: 65%;
+	height: 100%;
+	float: right;
+	clear: right;
+	margin: 0px;
+	position: relative;
+	padding: 10px;
+	box-sizing: border-box;
+	overflow: hidden;
+	/***** Style *****/
+	font-size: 450%;
+	text-align: center;
+}
+#AnswerQuestionScreenOvly .questionToAnswer span {
+	/***** Position *****/
+	display: inline-block;
+	height: auto;
+	min-height: 30%;
+	/***** Style *****/
+/*
+	word-break: keep-all;
+	word-wrap: normal;
+*/
+}
+#AnswerQuestionScreenOvly .questionInfoAndControl {
+	/***** Position *****/
+	display: inline-block;
+	box-sizing: border-box;
+	width: 35%;
+	height: 100%;
+	margin: 0px;
+	overflow-y: auto;
+	/***** Style *****/
+}
+#AnswerQuestionScreenOvly .questionInfoAndControl > * {
+	/***** Position *****/
+	box-sizing: border-box;
+	height: auto;
+	width: 100%;
+	padding: 5px;
+	/***** Style *****/
+}
+#AnswerQuestionScreenOvly .questionInfoAndControl .questionInfo {
+	/***** Position *****/
+	margin: 0px;
+	height: 15%;
+	display: table;
+	/***** Style *****/
+	font-size: 400%;
+	text-align: center;
+
+}
+#AnswerQuestionScreenOvly .questionInfoAndControl .questionInfo span {
+	display: table-cell;
+	vertical-align: middle;
+}
+#AnswerQuestionScreenOvly .questionInfoAndControl .questionControls {
+	/***** Position *****/
+	height: auto;
+	overflow-y: auto;
+	/***** Style *****/
+	text-align: center;
+}
+#AnswerQuestionScreenOvly .questionInfoAndControl .questionControls button {
+	/***** Position *****/
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	/***** Style *****/
+}
+#AnswerQuestionScreenOvly .questionInfoAndControl .teamListDiv {
+	/***** Position *****/
+	height: auto;
+	overflow-y: auto;
+	/***** Style *****/
+/* 	font-size: 150%; */
+}
+#AnswerQuestionScreenOvly .editMode {}
+#AnswerQuestionScreenOvly .editMode {
+	display: block;
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+}
+#AnswerQuestionScreenOvly .editMode .buttonContainer {
+	display: inline-block;
+	width: 20%;
+	height: 100%;
+	box-sizing: border-box;
+	padding: 10px;
+	overflow-y: auto;
+}
+#AnswerQuestionScreenOvly .editMode .buttonContainer .regularButton {
+	width: 100%;
+	margin-left: 0px;
+	margin-right: 0px;
+}
+#AnswerQuestionScreenOvly .editMode .previewQuestionDiv {
+	display: inline-block;
+	width: 80%;
+	height: 100%;
+	box-sizing: border-box;
+	padding: 50px;
+	overflow: hidden;
+	vertical-align: top;
+}
+#AnswerQuestionScreenOvly .editMode .previewQuestionDiv .previewQuestionSpan {
+	/* Do I even need to set anything here? */
+	display: inline-block;
+	overflow: visible;
+}
+#AnswerQuestionScreenOvly .editMode .previewQuestionDiv [role=application] {
+	display: block;
+	box-sizing: content-box;
+	height: 100%;
+	width: 100%;
+	margin: 0px;
+	padding: 0px;
+	border: 0px;
+}
+
+/*************************************/
+/* Currently, the Options, Data Set Mgmt, Make Board,
+	Import, and Export screens employ a split pane system.
+	
+	Below, will be the standardized styles for that type of screen.
+	
+	The markup will be structured as follows:
+	<div class="twoPanes">
+	
+		<div class="buttonDiv">
+			<div class="buttonDivInsert"></div>
+		</div>
+		
+		<div class="dataDiv">
+			<div class="dataDivInsert"></div>
+		</div>
+		
+	</div>
+	
+*/
+/*************************************/
+.twoPanes {
+	/***** Position *****/
+	/***** Style *****/
+}
+.twoPanes .buttonDiv {
+	/***** Position *****/
+	box-sizing: border-box;
+	display: inline-block;
+	width: 20%;
+	height: 100%;
+	height: 100%;
+	padding: 10px;
+	
+	/***** Style *****/
+}
+.twoPanes .dataDiv,
+.twoPanes .buttonDiv {
+	/***** Position *****/
+/* 	overflow-y: scroll; */
+	/***** Style *****/
+}
+.twoPanes .dataDiv .dataDivInsert,
+.twoPanes .buttonDiv .buttonDivInsert {
+	/***** Position *****/
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	padding: 0px 5px;
+	margin: 0px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	
+	/***** Style *****/
+	border: 2px solid black;
+	border-radius: 5px;
+}
+.twoPanes .buttonDiv .buttonDivInsert hr {
+	/***** Position *****/
+	width: 95%;
+	box-sizing: border-box;
+	height: 3px;
+	margin: 20px auto;
+	/***** Style *****/
+	border: none;
+	background-color: black;
+}
+.twoPanes .buttonDiv .buttonDivInsert .regularButton {
+	/***** Position *****/
+	box-sizing: border-box;
+	margin: 5px 0px;
+	width: 100%;
+	
+	/***** Style *****/
+}
+.twoPanes .dataDiv {
+	/***** Position *****/
+	box-sizing: border-box;
+	display: inline-block;
+	height: 100%;
+	width: 80%;
+	padding: 10px;
+	vertical-align: top;
+	
+	/***** Style *****/
+}
+.twoPanes .dataDiv .dataDivInsert {
+	/***** Position *****/
+	/***** Style *****/
+}
+.twoPanes .dataDiv .dataDivInsert > :not(button) {
+	/***** Position *****/
+	box-sizing: border-box;
+	width: 100%;
+	display: block;
+	margin: 5px 0px;
+	padding: 5px;
+	
+	/***** Style *****/
+	border: 1px solid black;
+	border-radius: 5px;
+}
+
+
+/*************************************/
+/*
+	Screen-specific input forms
+*/
+/*************************************/
+
+#OptionsScreenOvly .dataDiv .optionAutoTeams,
+#OptionsScreenOvly .optionControls .optionAutoTeams {
+	/***** Position *****/
+	margin-right: 5px;
+	/***** Style *****/
+}
+#OptionsScreenOvly .optionControls .createTeams {
+}
+#createTeamsForm > *,
+#createTeamsForm > * {
+	/***** Position *****/
+	margin: 0px 5px;
+	/***** Style *****/
+}
+#createTeamsForm input,
+#createTeamsForm select {
+	/***** Position *****/
+	/***** Style *****/
+	color: black;
+}
+#createTeamsForm ::-webkit-input-placeholder { /* WebKit browsers */
+    color: darkgray;
+}
+#createTeamsForm :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+   color: darkgray;
+   opacity:  1;
+}
+#createTeamsForm :-ms-input-placeholder { /* Internet Explorer 10+ */
+   color: darkgray;
+}
+#createTeamsForm button {
+	/***** Position *****/
+	display: inline-block;
+	width: auto;
+	/***** Style *****/
+	font-size: 100%;
+}
+
+
+
+#createDataSetForm {
+	width: 100%;
+	height: 50px;
+	box-sizing: border-box;
+}
+#createDataSetForm input {
+	height: 100%;
+	margin: 0px 5px 0px 0px;
+	box-sizing: border-box;
+	width: 300px;
+	color: black;
+}
+#createDataSetForm .regularButton {
+	height: 100%;
+	margin: 0px;
+	width: 100px;
+	box-sizing: border-box;
+}
+
+#MakeBoardScreenOvly .controlsContainer {
+	width: 100%;
+	height: 15%;
+	padding: 5px;
+	display: inline-block;
+	box-sizing: border-box;
+	vertical-align: top;
+}
+#MakeBoardScreenOvly .columnEditButtons,
+#MakeBoardScreenOvly .formContainer {
+	display: inline-block;
+	width: 50%;
+	height: 100%;
+	box-sizing: border-box;
+	padding: 5px;
+	vertical-align: top;
+}
+#MakeBoardScreenOvly .formContainer form {
+	display: block;
+	height: 50%;
+	margin: 0px;
+	padding: 2px;
+	box-sizing: border-box;
+	vertical-align: text-top;
+}
+#MakeBoardScreenOvly .formContainer form .regularButton {
+	box-sizing: border-box;
+	width: 49%;
+	height: 100%;
+	margin: 0px;
+	border-width: 2px;
+}
+#MakeBoardScreenOvly .formContainer form input {
+	box-sizing: border-box;
+	width: 49%;
+	height: 100%;
+	margin: 0px 2% 0px 0px;
+	padding: 0px;
+	color: black;
+	background-color: white;
+}
+#MakeBoardScreenOvly .columnEditButtons .regularButton {
+	/***** Position *****/
+	margin: 0px 1%;
+	width: 48%;
+	height: 100%;
+	/***** Style *****/
+}
+#MakeBoardScreenOvly .makeBoardDummyContainer {
+	/***** Position *****
+	width: 80%;
+	height: 80%;
+	max-height: 80%;
+	position: absolute;
+	overflow-y: hidden;
+	bottom: 0px;
+	right: 0px;
+	z-index: 50;
+	box-sizing: border-box;
+	/***** Style *****/
+	
+	width: 100%;
+	height: calc(85% - 20px);
+	display: inline-block;
+	box-sizing: border-box;
+}
+#ImportDataScreenOvly .dataDiv .regularButton,
+#ExportDataScreenOvly .dataDiv .regularButton {
+	width: 100%;
+	margin-left: 0px;
+	margin-right: 0px;
+	height: 50px;
+}
+#ImportDataScreenOvly textarea,
+#ExportDataScreenOvly textarea {
+	box-sizing: border-box;
+	height: calc( 100% - 50px - 20px );
+	resize: none;
+}
+
+
+/*
+#InfoScreenOvly {
+	/***** Position *****
+	box-sizing: border-box;
+	/***** Style *****
+	text-align: center;
+}
+*/
+/*
+#InfoScreenOvly .buttonContainer {
+	/***** Position *****
+	padding: 10px;
+	box-sizing: border-box;
+	height: auto;
+	max-height: 20%;
+	/***** Style *****
+}
+*/
+#InfoScreenOvly #infoDiv {
+	/***** Position *****/
+	box-sizing: border-box;
+	padding: 10px;
+	width: 100%;
+	height: auto;
+	margin: 5px 0px;
+	display: block;
+	text-align: left;
+	/***** Style *****/
+	font-size: 150%;
+/*
+	border: 1px solid black;
+	border-radius: 10px;
+*/
+	color: white;
+}
+#InfoScreenOvly a {
+	/***** Position *****/
+	/***** Style *****/
+	color: orange;
+}
+#InfoScreenOvly a:not([href]) {
+	text-decoration: none;
+}
+#InfoScreenOvly h2,
+#InfoScreenOvly p {
+	text-indent: 1em;
+}
+#InfoScreenOvly p {
+	margin-bottom: 1em;
+}
+
+
+* {
+	/***** Position *****/
+	/***** Style *****/
+}
