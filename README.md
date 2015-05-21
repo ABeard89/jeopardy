@@ -1,17 +1,31 @@
 # Jeopardy Readme
 
 ## Outline
-- Overview
-- Design
-  - Architecture
-  - Object Description
-  - Discrete Game States
-  - Game Initialization
-- Final Word
+- Quick Start
+- Developers
+  - Overview
+  - Design
+    - Architecture
+    - Object Description
+    - Discrete Game States
+    - Game Initialization
+  - Final Word
 
-## Overview
+## Quick Start
 
-This readme is intended to be a technical guide for any developers wishing to more easily understand the madness (and/or amateur design) of the code in this application.
+Hello, and welcome! Info and User's Guide are included in the application itself.
+
+This is an offline web-based application. That means that you can run this application in your web browser.
+
+Double click the file `App Jeopardy.html`. If it does not open in your default browser, right click the file and select `Open With...`. Then select your preferred browser from the list.
+
+Once the application has been opened in your browser, select `About` or `User's Guide` for more information.
+
+Also, please note the section `Recommended Browsers` in the About section.
+
+## Developers
+
+### Overview
 
 This was my first actual design project that actually relied heavily on object-oriented patterns. So, as you may surmise, you'll find plenty of amateur mistakes in the design of this application. When I began writing it, I was putting too much grunt-level code together. This resulted in poor separation and legibility. As I wrote it, I began to see how those mistakes were negatively affecting the performance, readability, manageability, scalability, and stability of the design.
 
@@ -19,9 +33,9 @@ As a result, I began breaking the objects out and assigning even the smallest ta
 
 Also, I apologize for the haphazard way I have of writing extremely detailed comments in some sections and leaving them out of most other areas.
 
-## Design
+### Design
 
-### Architecture
+#### Architecture
 
 The user interface elements of this app lie in what I call "overlays". Every screen of the app is a separate overlay. Each overlay is created at startup and hidden. Then, as they become needed, they are shown to the user. But because they are all part of the DOM at the same time, element IDs must be carefully considered.
 
@@ -33,7 +47,7 @@ The heart is the controller. The main controller is responsible for:
 - creating and managing sub-objects
 - keeping records of all data
 
-### Object Description
+#### Object Description
 
 Other objects and their main responsibilities include:
 - Overlay
@@ -61,7 +75,7 @@ Other objects and their main responsibilities include:
 
 (There is also the Checkbox object. I never did much with it. It was more to see if I could and if it would be worth the effort. Turns out I could, but I'm unsure it was worth the effort. I've mostly left it alone, as I haven't added more than one instance.)
 
-### Discrete Game States
+#### Discrete Game States
 
 There are 10 game states:
 1. Start Screen
@@ -94,7 +108,7 @@ There are 10 game states:
 
 (As previously mentioned, each state corresponds to its own overlay.)
 
-### Game Initialization
+#### Game Initialization
 
 When the game is initialized, there 3 (not well-defined) stages during startup:
 1. Overlay Creation
@@ -106,7 +120,7 @@ When the game is initialized, there 3 (not well-defined) stages during startup:
     - Teams and Data Sets are initialized with defaults
     - each retrieves its own data and restores itself once initialized
 
-## Final Word
+### Final Word
 
 Seriously, if you wish to build upon my foundation, I do wish you luck. I, myself, find the code difficult to navigate and the game flow hard to track.
 
