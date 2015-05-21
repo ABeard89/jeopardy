@@ -379,14 +379,14 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		var aboutButton = new GameButtonWithController(this);
 		aboutButton.initWith("regularButton", "About", buttonDiv, function(){
 			this.log("Button changing game state to 'Info'.");
-			this.controller.htmlFileToLoad = "./about.html";
+			this.controller.htmlFileToLoad = "./resources/about.html";
 			this.controller.navPush(this.controller.gameStates.Info);
 		});
 		
 		var howToUseButton = new GameButtonWithController(this);
 		howToUseButton.initWith("regularButton", "User's Guide", buttonDiv, function(){
 			this.log("Button changing game state to 'Info'.");
-			this.controller.htmlFileToLoad = "./howtouse.html";
+			this.controller.htmlFileToLoad = "./resources/howtouse.html";
 			this.controller.navPush(this.controller.gameStates.Info);
 		});
 		
