@@ -1,5 +1,6 @@
 var versionNumber = "1.0.1";
 var adminEmail = "anthony.beard89@gmail.com";
+var githubLink = "https://github.com/ABeard89/jeopardy";
 
 var ErrorCodes = makeStruct("info warning error");
 var logTypes = new ErrorCodes();
@@ -1345,7 +1346,6 @@ function GameController(pointsArray, categoriesDict, containerId) {
 			}
 		};
 	};
-	
 	
 	this.updateAutoTeams = function(){
 		if (this.options.autoTeams) {
@@ -4576,11 +4576,14 @@ jeopController.init("jeopCont");
 // I hate, hate, hate these two functions. I named them 'hack' functions for a reason.
 // What I want is an elegant and simple way to dynamically adjust font size based on both the container size and the amount of text.
 // There are very simple and elegant ways to adjust font size based on the size of the container, but nothing I'm aware of to change it based on the amount of text.
-// These functions are a product of my frustration, as I've succumbed to using a straight-forward, error-prone, brute force method of changing font size.
+// These functions are a product of my frustration, as I've succumbed to using an error-prone, brute force method of changing font size.
 
 // The only good thing about hackStyle is that I have included the size of the game board cells in here as well.
 // The game cells/rows will change whenever the size of it's container (usually the window) is adjusted.
 // The only other way I can think of doing that is to use flex-box, but that isn't so widely supported, and I'd like to support a few older versions of browsers.
+
+// If you wish to use hackFontSize an another element, know that it is designed to adjust the text size of a span element within a block element, most often a div.
+// The 'domElement' parameter
 function hackStyle(){
 	var dontResize = false;
 	var controller = this || null;
@@ -4966,6 +4969,7 @@ $(window).resize($.proxy(hackStyle,jeopController)).trigger("resize");
 
 function refreshInfo() {
 	$(".versionNumber").html("v" +versionNumber);
+	$(".github").attr("target", "_blank").attr("href", githubLink);
 	$(".mailToAdmin").html(adminEmail);
 	$(".mailToAdmin").attr("href", "mailto:" +adminEmail +"?Subject=Feedback:%20Jeopardy%20v" +versionNumber +"&body=My%20Browser:%0A" +navigator.userAgent +"%0A%0AMy%20Comments:%0A");
 }
