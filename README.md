@@ -17,7 +17,7 @@ Hello, and welcome! Info and User's Guide are included in the application itself
 
 This is an offline web-based application. That means that you can run this application in your web browser.
 
-Once all files have been downloaded to your computer, double click the file `App Jeopardy.html`. If it does not open in your default browser, right click the file and select `Open With...`. Then select your preferred browser from the list.
+Once all files have been downloaded to your computer, double click the file `Jeopardy.html`. If it does not open in your default browser, right click the file and select `Open With...`. Then select your preferred browser from the list.
 
 Once the application has been opened in your browser, select `About` or `User's Guide` for more information.
 
