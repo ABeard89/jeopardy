@@ -90,7 +90,7 @@ var gameObjectPrototype = {
 		return playModeDiv;
 	},
 	addEditModeContainer: function(toParent, optPrependBool){
-		var editModeDiv = this.createAndAppendToDom("span", toParent, optPrependBool);
+		var editModeDiv = this.createAndAppendToDom("div", toParent, optPrependBool);
 		$(editModeDiv).addClass("editMode");
 		return editModeDiv;
 	},
@@ -185,7 +185,7 @@ var gameObjectPrototype = {
 }
 
 function GameController(pointsArray, categoriesDict, containerId) {
-	var GameStates = makeStruct("StartScreen Info Options ImportData ExportData DataMgmt MakeBoard ChooseData SelectQuestion AnswerQuestion");
+	var GameStates = makeStruct("StartScreen Info Options ImportData ExportData DataMgmt MakeBoard ChooseData SelectQuestion DailyDouble AnswerQuestion");
 	var navTrail = [];
 	// Properties
 	this.containerId = containerId || "body";
@@ -199,8 +199,11 @@ function GameController(pointsArray, categoriesDict, containerId) {
 	this.currentQuestionId = "";
 	this.currentQuestionValue = "";
 	this.options = {
-		autoTeams: true
+		autoTeams: new GameBool(true),
+		sounds: new GameBool(false)
 	};
+	this.newOptions = {};
+	this.optionCheckboxes = [];
 	this.teamColors = {};
 	
 	this.teamsList = [];
@@ -218,17 +221,31 @@ function GameController(pointsArray, categoriesDict, containerId) {
 	
 	this.currentDataSet = {};
 	
+	var soundsToLoad = {
+		themeSong: "resources/sounds/1MIN_FINAL_JEOPARDY.mp4",
+		dailyDoubleSong: "resources/sounds/Jeopardy-daily2x.mp3",
+		revealBoard: "resources/sounds/Jeopardy-boardfill.mp3",
+		correctAnswer: "resources/sounds/FamilyFeud-Bell.mp3",
+		incorrectAnswer: "resources/sounds/FamilyFeud-Buzzer3.mp3"
+	};
+	this.sounds = {};
+	this.soundsList = [];
+	this.gameSounds;
+	
 	// Note that $.extend(true, {}, obj) is used to make a deep copy of a variable, instead of passing by reference.
-	this.newOptions = $.extend(true, {}, this.options);
+// 	this.newOptions = $.extend(true, {}, this.options);
 	
 	// Methods
 	this.changeGameState = function(toState){
+		this.stopSounds();
 		switch (toState) {
 			case this.gameStates.StartScreen:
 				this.gameState = toState;
 				this.log("Game State changed to 'StartScreen'.");
 				this.hideAllOverlays();
 				this.gameOverlays[this.gameStates.StartScreen].show();
+				
+				this.playSound(this.gameSounds.themeSong);
 				break;
 			case this.gameStates.Info:
 				this.gameState = toState;
@@ -251,7 +268,7 @@ function GameController(pointsArray, categoriesDict, containerId) {
 				this.gameState = toState;
 				// I'm paranoid. Reset the newOptions to the actual options object.
 				// This will also effectively discard any changes that weren't saved.
-				this.newOptions = $.extend(true, {}, this.options);
+// 				this.newOptions = $.extend(true, {}, this.options);
 				
 				this.log("Game State changed to 'Options'.");
 				this.hideAllOverlays();
@@ -324,6 +341,10 @@ function GameController(pointsArray, categoriesDict, containerId) {
 			case this.gameStates.SelectQuestion:
 				this.gameOverlays[this.gameStates.AnswerQuestion].enterPlayMode();
 				
+				if (this.gameState == this.gameStates.ChooseData) {
+					this.playSound(this.gameSounds.revealBoard);
+				}
+				
 				this.gameState = toState;
 				this.log("Game State changed to 'SelectQuestion'.");
 				this.hideAllOverlays();
@@ -336,6 +357,15 @@ function GameController(pointsArray, categoriesDict, containerId) {
 					this.teams[key].enterPlayMode();
 				}
 				
+				break;
+			case this.gameStates.DailyDouble:
+				this.gameState = toState;
+				var ovly = this.gameOverlays[toState];
+				this.log("Game State changed to 'DailyDouble'.");
+				this.hideAllOverlays();
+				ovly.show();
+				
+				this.playSound(this.gameSounds.dailyDoubleSong);
 				break;
 			case this.gameStates.AnswerQuestion:
 				this.gameState = toState;
@@ -450,6 +480,73 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		
 		return this;
 	};
+	this.createDailyDoubleScreen = function(){
+		var ovlyId = "DailyDoubleScreenOvly";
+		
+		this.gameOverlays[this.gameStates.DailyDouble] = new GameOverlayWithController(this);
+		var ovly = this.gameOverlays[this.gameStates.DailyDouble];
+		ovly.init(ovlyId);
+		ovly.addClassToDomElement("twoPanes");
+		
+		var buttonDiv = this.createAndAppendToDom("div", ovly.domElement);
+		$(buttonDiv).addClass("buttonDiv");
+		
+			var buttonDivInsert = this.createAndAppendToDom("div", buttonDiv);
+			$(buttonDivInsert).addClass("buttonDivInsert");
+				
+				var backButton = new GameButtonWithController(this);
+				backButton.initWith("regularButton backButton", "Cancel", buttonDivInsert, function(){
+					this.controller.navPop();
+					
+					$(window).trigger("resize");
+				});
+				
+		var dataDiv = this.createAndAppendToDom("div", ovly.domElement);
+		$(dataDiv).addClass("dataDiv");
+		
+			var dataDivInsert = this.createAndAppendToDom("div", dataDiv);
+			$(dataDivInsert).addClass("dataDivInsert");
+				
+				var dailyDoubleLabelDiv = this.createAndAppendToDom("div", dataDivInsert);
+				$(dailyDoubleLabelDiv).addClass("dailyDoubleLabelDiv");
+					
+					var dailyDoubleLabel = this.createAndAppendToDom("span", dailyDoubleLabelDiv);
+					$(dailyDoubleLabel).addClass("dailyDoubleLabel");
+					$(dailyDoubleLabel).html("Daily Double");
+				
+				var dailyDoubleWagerDiv = this.createAndAppendToDom("div", dataDivInsert);
+				$(dailyDoubleWagerDiv).addClass("dailyDoubleWagerDiv");
+					
+					var dailyDoubleWagerInput = this.createAndAppendToDom("input", dailyDoubleWagerDiv);
+					$(dailyDoubleWagerInput).addClass("dailyDoubleWagerInput");
+					if (browserIsCompleteShit) {
+						dailyDoubleWagerInput.type = "text";
+					} else {
+						dailyDoubleWagerInput.type = "number";
+					}
+					$(dailyDoubleWagerInput).attr("placeholder", "Wager");
+					
+					var dailyDoubleWagerButton = new GameButtonWithController(this);
+					dailyDoubleWagerButton.initWith("regularButton", "Wager", dailyDoubleWagerDiv, function(){
+						var wagerValue = parseInt(dailyDoubleWagerInput.value);
+						
+						if (wagerValue.toString() != "NaN" && wagerValue > 0) {
+							this.controller.currentQuestionValue = wagerValue.toString();
+							this.controller.navPush(this.controller.gameStates.AnswerQuestion);
+							
+							// Reset the input value
+							dailyDoubleWagerInput.value = "";
+							return true;
+						} else {
+							return false;
+						}
+					});
+		
+		ovly.appendToDom(this.containerId);
+		ovly.hide();
+		
+		return this;
+	};
 	this.createAnswerQuestionScreen = function(){
 		this.gameOverlays[this.gameStates.AnswerQuestion] = new GameOverlayWithController(this);
 		var ovly = this.gameOverlays[this.gameStates.AnswerQuestion];
@@ -490,6 +587,10 @@ function GameController(pointsArray, categoriesDict, containerId) {
 			}
 			
 			this.controller.navPop();
+			if (this.controller.gameState == this.controller.gameStates.DailyDouble) {
+				// Need to call a second time to return to the board.
+				this.controller.navPop();
+			}
 			$(window).trigger("resize");
 		});
 		
@@ -609,6 +710,8 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		var clearDataButton = new GameButtonWithController(this);
 		
 		backButton.initWith("regularButton", "Back", buttonDivInsert, function() {
+			this.controller.discardOptions();
+			
 			for (team in this.controller.teams) {
 				this.controller.teams[team].enterPlayMode();
 			}
@@ -634,12 +737,14 @@ function GameController(pointsArray, categoriesDict, containerId) {
 			$(".gameTeam .doneButton").each(function(){
 				this.click();
 			});
-			this.controller.options = $.extend(true, {}, this.controller.newOptions);
+// 			this.controller.options = $.extend(true, {}, this.controller.newOptions);
+			this.controller.confirmOptions();
 			this.controller.saveMarkedTeams();
 			this.controller.deleteMarkedTeams();
 			this.controller.confirmTeamEdits();
 			this.controller.saveTeams();
 			this.controller.updateAutoTeams();
+			this.controller.saveOptions();
 			this.log("Options saved.");
 		});
 		this.createAndAppendToDom("hr", buttonDivInsert);
@@ -669,18 +774,25 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		
 			var dataDivInsert = this.createAndAppendToDom("div", dataDiv);
 			$(dataDivInsert).addClass("dataDivInsert");
+				
+				var optionsDiv = this.createAndAppendToDom("div", dataDivInsert);
+				$(optionsDiv).addClass("optionsDiv");
 		
-		var optionAutoTeams = new GameCheckboxWithController(this);
-		optionAutoTeams.initWith("optionAutoTeams", "Use automatic teams?", dataDivInsert, this.newOptions["autoTeams"], function(){
-			this.controller.newOptions["autoTeams"] = this.domElement.checked;
-			if (this.domElement.checked) {
-				$(".createTeams").show();
-				ovly.fillScreen();
-			} else {
-				$(".createTeams, .readyTeams").hide();
-				ovly.clearScreen();
-			}
-		});
+					var optionAutoTeams = new GameCheckboxWithController(this);
+					optionAutoTeams.initWith("optionCheckbox", "Teams", optionsDiv, this.newOptions["autoTeams"], function(){
+			// 			this.controller.newOptions["autoTeams"] = this.domElement.checked;
+			// 			this.control = this.domElement.checked;
+						if (this.domElement.checked) {
+							$(".createTeams").show();
+							ovly.fillScreen();
+						} else {
+							$(".createTeams, .readyTeams").hide();
+							ovly.clearScreen();
+						}
+					});
+					
+					var optionSounds = new GameCheckboxWithController(this);
+					optionSounds.initWith("optionCheckbox", "Sound Effects", optionsDiv, this.newOptions["sounds"]);
 		
 		// Team Creator
 		var createTeamsDiv = this.createAndAppendToDom("div", dataDivInsert);
@@ -803,9 +915,17 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		
 		ovly.clearScreen = function() {
 			$(".gameTeam").detach();
+			$(createTeamsDiv).hide();
+			$(readyTeamsDiv).hide();
 		};
 		ovly.fillScreen = function() {
-			if (this.controller.newOptions["autoTeams"] == true) {
+			for (i=0;i<this.controller.optionCheckboxes.length;i++) {
+				this.controller.optionCheckboxes[i].refresh();
+			}
+			
+			if (this.controller.newOptions["autoTeams"].getValue() == true) {
+				
+				$(createTeamsDiv).css("display", "");
 				
 				for (team in ovly.controller.teams) {
 					ovly.controller.teams[team].appendToDom(readyTeamsDiv);
@@ -1348,12 +1468,43 @@ function GameController(pointsArray, categoriesDict, containerId) {
 	};
 	
 	this.updateAutoTeams = function(){
-		if (this.options.autoTeams) {
+		if (this.options.autoTeams.getValue()) {
 			$(".gameTeam").show();
 		} else {
 			$(".gameTeam").hide();
 		}
 	};
+	
+	this.copyOptions = function(){
+		for (option in this.options) {
+			this.newOptions[option] = new GameBool(this.options[option].getValue());
+		}
+	};
+	this.confirmOptions = function(){
+		for (option in this.newOptions) {
+// 			this.options[option] = new GameBool(this.newOptions[option].getValue());
+			this.options[option].setValue(this.newOptions[option].getValue());
+		}
+	};
+	this.discardOptions = function(){
+		for (option in this.options) {
+// 			this.newOptions[option] = new GameBool(this.options[option].getValue());
+			this.newOptions[option].setValue(this.options[option].getValue());
+		}
+	};
+	this.saveOptions = function(){
+		for (option in this.options) {
+			var prefix = this.objLogId +"Option" +option;
+			localStorage.setItem(prefix, this.options[option].getValue());
+		}
+	};
+	this.loadOptions = function(){
+		for (option in this.options) {
+			var prefix = this.objLogId +"Option" +option;
+			this.options[option] = new GameBool( (localStorage.getItem(prefix) || "true").toLowerCase() === "true" );
+		}
+	};
+	
 	this.addTempTeam = function(teamName, teamColor, teamPoints){
 		var team = new GameTeam(this);
 		team.initWith(this, teamName, teamColor, teamPoints);
@@ -1420,7 +1571,7 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		for (i=0;i<this.teamsList.length;i++) {
 			var team = this.teamsList[i];
 			var prefix = this.objLogId +"Team" +i;
-			localStorage[prefix] = this.teams[team].teamName;
+			localStorage.setItem(prefix, this.teams[team].teamName);
 			this.teams[team].saveData();
 		}
 	};
@@ -1431,7 +1582,7 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		var stopLoop = false;
 		while (stopLoop == false) {
 			var prefix = this.objLogId +"Team" +i;
-			var teamName = localStorage[prefix];
+			var teamName = localStorage.getItem(prefix);
 			if ( typeof localStorage[prefix] != "undefined" ) {
 				this.teamsList.push(teamName);
 				this.teams[teamName] = new GameTeam();
@@ -1448,7 +1599,7 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		for (i=0;i<this.dataSetsList.length;i++) {
 			var set = this.dataSetsList[i];
 			var prefix = this.objLogId +"DataSet" +i;
-			localStorage[prefix] = this.dataSets[set].name;
+			localStorage.setItem(prefix, this.dataSets[set].name);
 			this.dataSets[set].saveData();
 		}
 	};
@@ -1458,7 +1609,7 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		var stopLoop = false;
 		while (stopLoop == false) {
 			var prefix = this.objLogId +"DataSet" +i;
-			var dataSetName = localStorage[prefix];
+			var dataSetName = localStorage.getItem(prefix);
 			if ( typeof localStorage[prefix] != "undefined" ) {
 				this.dataSetsList.push(dataSetName);
 				this.dataSets[dataSetName] = new GameDatasetWithController(this);
@@ -2049,9 +2200,57 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		this.changeGameState(gameState);
 	};
 	
+	// Sound Effects
+	this.loadSounds = function(){
+		for (item in soundsToLoad) {
+			this.loadSound(item, soundsToLoad[item]);
+		}
+	};
+	this.loadSound = function(name, relFilePath){
+		name = name.replace(/ /g, "");
+		this.soundsList.push(name);
+		this.updateSounds();
+		
+		this.sounds[ this.gameSounds[name] ] = this.createAndAppendToDom("audio", this.containerId);
+		this.sounds[ this.gameSounds[name] ].id = name;
+		$(this.sounds[ this.gameSounds[name] ]).attr({
+			src: relFilePath,
+			preload: "auto"
+		});
+	};
+	this.updateSounds = function(){
+		var listString = "";
+		
+		for (i=0;i<this.soundsList.length;i++) {
+			listString = listString +this.soundsList[i] +" ";
+		}
+		
+		var GameSounds = makeStruct(listString);
+		this.gameSounds = new GameSounds();
+	};
+	this.playSound = function(GameSounds){
+		this.stopSounds();
+		if (this.options.sounds.getValue() == true && this.newOptions.sounds.getValue() == true ) {
+			this.sounds[GameSounds].play();
+		}
+	};
+	this.stopSounds = function(){
+		for (sound in this.sounds) {
+			this.sounds[sound].pause();
+			this.sounds[sound].currentTime = 0;
+		}
+	};
+	
 	this.init = function(withName){
 		this.objLogId = withName;
+		
+		this.loadOptions();
+		// This will copy the options into newOptions
+		this.copyOptions();
+		
 		this.createTeamColors();
+		
+		this.loadSounds();
 		
 		this.setCurrentDataSet();
 		
@@ -2061,6 +2260,7 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		this.createImportDataScreen();
 		this.createExportDataScreen();
 		this.createSelectQuestionScreen();
+		this.createDailyDoubleScreen();
 		this.createAnswerQuestionScreen();
 		this.createMakeBoardScreen();
 		this.createChooseDataScreen();
@@ -2159,164 +2359,240 @@ function GameBoardWithController(controller, catRowCssClass, qRowCssClassPrefix,
 		
 		var editModeDiv = this.addEditModeContainer(row);
 		
-		var editRowButtonsDiv = this.createAndAppendToDom("div", editModeDiv);
-		$(editRowButtonsDiv).addClass("editRowButtons");
+			var editRowButtonsDiv = this.createAndAppendToDom("div", editModeDiv);
+			$(editRowButtonsDiv).addClass("editRowButtons");
 		
-		var grabHandle = this.createAndAppendToDom("div", editRowButtonsDiv);
-		$(grabHandle).addClass("grabHandle");
-		$(grabHandle).html("<span>&#8597</span>");
+				var grabHandle = this.createAndAppendToDom("div", editRowButtonsDiv);
+				$(grabHandle).addClass("grabHandle");
+				$(grabHandle).html("<span>&#8597</span>");
 		
-		// Click and drag capability
-		$(grabHandle).attr("draggable", "true");
-		$(grabHandle).on("dragstart", $.proxy(function(event){
-			$(this.tableBody).find("tr").on("dragover", $.proxy(function(event){
-				event.preventDefault();
-			}, this));
-			$(this.tableBody).find("tr").on("drop", $.proxy(function(event){
-				// get indices
-				var movingIndex = event.originalEvent.dataTransfer.getData("text/plain");
-				var moveToIndex = $(this.tableBody).find("tr").index( $(event.target).closest("tr").get(0) );
+				// Click and drag capability
+				$(grabHandle).attr("draggable", "true");
+				$(grabHandle).on("dragstart", $.proxy(function(event){
+					$(this.tableBody).find("tr").on("dragover", $.proxy(function(event){
+						event.preventDefault();
+					}, this));
+					$(this.tableBody).find("tr").on("drop", $.proxy(function(event){
+						// get indices
+						var movingIndex = event.originalEvent.dataTransfer.getData("text/plain");
+						var moveToIndex = $(this.tableBody).find("tr").index( $(event.target).closest("tr").get(0) );
+						
+						// move around rows
+						if (movingIndex < moveToIndex) {
+							$(this.tableBody).find("tr").eq(moveToIndex).after( $(this.tableBody).find("tr").eq(movingIndex) );
+						} else {
+							$(this.tableBody).find("tr").eq(moveToIndex).before( $(this.tableBody).find("tr").eq(movingIndex) );
+						}
+						
+						// Data management update:
+						this.controller.currentDataSet.moveRow(movingIndex, moveToIndex);
+						
+						event.preventDefault();
+					}, this));
+					
+					// Set index
+					var index = $(this.tableBody).find("tr").index( $(event.originalEvent.target).closest("tr").get(0) );
+					event.originalEvent.dataTransfer.setData("text/plain", index);
+					// set drag image
+					event.originalEvent.dataTransfer.setDragImage($(event.originalEvent.target).closest("tr").get(0), ( $(event.originalEvent.target).width() / 2 ), ( $(event.originalEvent.target).height() / 2 ));
+				}, this));
 				
-				// move around rows
-				if (movingIndex < moveToIndex) {
-					$(this.tableBody).find("tr").eq(moveToIndex).after( $(this.tableBody).find("tr").eq(movingIndex) );
-				} else {
-					$(this.tableBody).find("tr").eq(moveToIndex).before( $(this.tableBody).find("tr").eq(movingIndex) );
-				}
+				var findRowValueRegex = new RegExp("^.*" +this.qRowCssClassPrefix +"(\\d+).*$", "g");
+				var foundRowValue = withClass.replace(findRowValueRegex, "$1")
+				// 'pointValue' now defined
 				
-				// Data management update:
-				this.controller.currentDataSet.moveRow(movingIndex, moveToIndex);
+				var wrapValueDiv = this.createAndAppendToDom("div", editRowButtonsDiv);
+				$(wrapValueDiv).addClass("wrapValue");
 				
-				event.preventDefault();
-			}, this));
-			
-			// Set index
-			var index = $(this.tableBody).find("tr").index( $(event.originalEvent.target).closest("tr").get(0) );
-			event.originalEvent.dataTransfer.setData("text/plain", index);
-			// set drag image
-			event.originalEvent.dataTransfer.setDragImage($(event.originalEvent.target).closest("tr").get(0), ( $(event.originalEvent.target).width() / 2 ), ( $(event.originalEvent.target).height() / 2 ));
-		}, this));
-		
-		var findRowValueRegex = new RegExp("^.*" +this.qRowCssClassPrefix +"(\\d+).*$", "g");
-		var foundRowValue = withClass.replace(findRowValueRegex, "$1")
-		// 'pointValue' now defined
-		var wrapValueDiv = this.createAndAppendToDom("div", editRowButtonsDiv);
-		$(wrapValueDiv).addClass("wrapValue");
-		var displayRowValue = this.createAndAppendToDom("span", wrapValueDiv);
-		$(displayRowValue).addClass("displayRowValue");
-		$(displayRowValue).html(foundRowValue);
+					var displayRowValue = this.createAndAppendToDom("span", wrapValueDiv);
+					$(displayRowValue).addClass("displayRowValue");
+					$(displayRowValue).html(foundRowValue);
 				
-		var editRowValue = this.createAndAppendToDom("input", wrapValueDiv);
-		$(editRowValue).addClass("editRowValue");
-		if (browserIsCompleteShit) {
-			editRowValue.type = "text";
-		} else {
-			editRowValue.type = "number";
-		}
-		editRowValue.placeholder = "Points:";
-		$(editRowValue).hide();
+					var editRowValue = this.createAndAppendToDom("input", wrapValueDiv);
+					$(editRowValue).addClass("editRowValue");
+					if (browserIsCompleteShit) {
+						editRowValue.type = "text";
+					} else {
+						editRowValue.type = "number";
+					}
+					editRowValue.placeholder = "Points:";
+					$(editRowValue).hide();
 		
-		var editRowButton = new GameButtonWithController(this.controller);
-		editRowButton.initWith("regularButton editButton", "Edit", editRowButtonsDiv, function(){
-			var tempValue = $(this.domElement).closest("tr").find(".displayRowValue").html();
-			$(this.domElement).closest("tr").find(".editRowValue").get(0).value = tempValue;
-			
-			// Let's just go ahead and remove the class.
-			$(this.domElement).closest("tr").removeClass(this.controller.gameBoard.qRowCssClassPrefix +tempValue);
-			
-			$(this.domElement).closest("tr").find(".displayRowValue").hide();
-			$(this.domElement).closest("tr").find(".editRowValue").show();
-			
-			this.hide();
-			$(this.domElement).parent().children(".doneButton").show();
-			$(this.domElement).parent().children(".deleteButton").show();
-			
-			editRowValue.focus();
-			
-			$(window).trigger("resize");
-			return true;
-		});
+				var editRowButton = new GameButtonWithController(this.controller);
+				editRowButton.initWith("regularButton editButton", "Edit", editRowButtonsDiv, function(){
+					var tempValue = $(this.domElement).closest("tr").find(".displayRowValue").html();
+					$(this.domElement).closest("tr").find(".editRowValue").get(0).value = tempValue;
+					
+					// Let's just go ahead and remove the class.
+					$(this.domElement).closest("tr").removeClass(this.controller.gameBoard.qRowCssClassPrefix +tempValue);
+					
+					$(this.domElement).closest("tr").find(".displayRowValue").hide();
+					$(this.domElement).closest("tr").find(".editRowValue").show();
+					
+					this.hide();
+					$(this.domElement).parent().children(".doneButton").show();
+					$(this.domElement).parent().children(".deleteButton").show();
+					
+					editRowValue.focus();
+					
+					$(window).trigger("resize");
+					return true;
+				});
+				
+				var doneRowButton = new GameButtonWithController(this.controller);
+				doneRowButton.initWith("regularButton doneButton", "Done", editRowButtonsDiv, function(){
+					var tempValue = $(this.domElement).closest("tr").find(".editRowValue").get(0).value;
+					
+					var currentIndex = $(this.controller.gameBoard.tableBody).find("tr").index( $(this.domElement).closest("tr") );
+					// Data management update:
+					var success = this.controller.currentDataSet.editRowValue(currentIndex, null, tempValue);
+					if (! success) {
+						tempValue = this.controller.currentDataSet.points[currentIndex];
+					}
+					
+					// Now, we need to add the class to the row.
+					$(this.domElement).closest("tr").addClass(this.controller.gameBoard.qRowCssClassPrefix +tempValue);
+					
+					$(this.domElement).closest("tr").find(".displayRowValue").html(tempValue.toString());
+					
+					$(this.domElement).closest("tr").find(".editRowValue").hide();
+					$(this.domElement).closest("tr").find(".displayRowValue").show();
+					
+					this.hide();
+					$(this.domElement).parent().children(".editButton").show();
+					$(this.domElement).parent().children(".deleteButton").hide();
+					
+					$(window).trigger("resize");
+					return true;
+				});
+				doneRowButton.hide();
 		
-		var doneRowButton = new GameButtonWithController(this.controller);
-		doneRowButton.initWith("regularButton doneButton", "Done", editRowButtonsDiv, function(){
-			var tempValue = $(this.domElement).closest("tr").find(".editRowValue").get(0).value;
-			
-			var currentIndex = $(this.controller.gameBoard.tableBody).find("tr").index( $(this.domElement).closest("tr") );
-			// Data management update:
-			var success = this.controller.currentDataSet.editRowValue(currentIndex, null, tempValue);
-			if (! success) {
-				tempValue = this.controller.currentDataSet.points[currentIndex];
-			}
-			
-			// Now, we need to add the class to the row.
-			$(this.domElement).closest("tr").addClass(this.controller.gameBoard.qRowCssClassPrefix +tempValue);
-			
-			$(this.domElement).closest("tr").find(".displayRowValue").html(tempValue.toString());
-			
-			$(this.domElement).closest("tr").find(".editRowValue").hide();
-			$(this.domElement).closest("tr").find(".displayRowValue").show();
-			
-			this.hide();
-			$(this.domElement).parent().children(".editButton").show();
-			$(this.domElement).parent().children(".deleteButton").hide();
-			
-			$(window).trigger("resize");
-			return true;
-		});
-		doneRowButton.hide();
-
+				
+				var deleteRowButton = new GameButtonWithController(this.controller);
+				deleteRowButton.initWith("regularButton deleteButton", "Delete", editRowButtonsDiv, function(){
+					if (this.controller.currentDataSet.points.length <= 1) {
+						return false;
+					}
+					
+					this.log("Deleting Row '." + withClass+"'.");
+					$(this.domElement).closest("tr").remove();
+					
+					var searchForValue = new RegExp("^.*" +this.controller.gameBoard.qRowCssClassPrefix +"(\\d+).*$", "g");
+					var rowValue = withClass.replace(searchForValue, "$1");
+					rowValue = parseInt(rowValue);
+					
+					// Data management update:
+					this.controller.currentDataSet.delRow(null, rowValue);
+					
+					$(window).trigger("resize");
+				});
+				deleteRowButton.hide();
 		
-		var deleteRowButton = new GameButtonWithController(this.controller);
-		deleteRowButton.initWith("regularButton deleteButton", "Delete", editRowButtonsDiv, function(){
-			if (this.controller.currentDataSet.points.length <= 1) {
-				return false;
-			}
-			
-			this.log("Deleting Row '." + withClass+"'.");
-			$(this.domElement).closest("tr").remove();
-			
-			var searchForValue = new RegExp("^.*" +this.controller.gameBoard.qRowCssClassPrefix +"(\\d+).*$", "g");
-			var rowValue = withClass.replace(searchForValue, "$1");
-			rowValue = parseInt(rowValue);
-			
-			// Data management update:
-			this.controller.currentDataSet.delRow(null, rowValue);
-			
-			$(window).trigger("resize");
-		});
-		deleteRowButton.hide();
-		
-		var editQuestionDiv = this.createAndAppendToDom("div", editModeDiv);
-		$(editQuestionDiv).addClass("editQuestionDiv");
-		var editQuestionDisplay = new GameButtonWithController(this.controller);
-		editQuestionDisplay.initWith("editQuestionDisplay", "", editQuestionDiv, function(){
-			var ovly = this.controller.gameOverlays[this.controller.gameStates.AnswerQuestion];
-			var thisOvly = this.controller.gameOverlays[this.controller.gameStates.MakeBoard];
-			
-			// take the question text and save it to the controller or game board or overlay.
-			this.controller.gameBoard.editModeQuestionText = $(this.domElement).find("span").html();
-			var currentCol = $(this.controller.gameBoard.domElement).find("." +this.controller.gameBoard.selectedColumnCssClass +" .catDivInsert").html();
-			
-			// Data management update:
-			for (value in this.controller.currentDataSet.questions[currentCol]) {
-				var testForClass = this.controller.gameBoard.qRowCssClassPrefix +value;
-				if ( $(this.domElement).closest("tr").hasClass(testForClass) ) {
-					this.controller.gameBoard.editModeQuestionRow = testForClass;
-				}
-			}
-			
-				// Though, the game board seems like the most logical place for it.
-			// display the (edit mode) Answer Question overlay
-				// either change game mode (and set an 'edit' flag in the game board or the controller.
-				// or shrink it down and put it in the Make Board container.
-					// Though, honestly I think the best thing to do will be to switch to the game state so the user can preview the full display of the question,
-					// as it would be in the actual run-through of the game.
-			$(ovly.domElement).find(".previewQuestionSpan").html(this.controller.gameBoard.editModeQuestionText);
-			ovly.enterEditMode().show();
-			thisOvly.hide();
-			
-			$(window).trigger("resize");
-		});
+			var editQuestionDiv = this.createAndAppendToDom("div", editModeDiv);
+			$(editQuestionDiv).addClass("editQuestionDiv");
+				
+				var setDailyDoubleDiv = this.createAndAppendToDom("div", editQuestionDiv);
+				$(setDailyDoubleDiv).addClass("setDailyDouble");
+					
+					// Having trouble putting the button on the bottom. I like it there for consistency.
+					// I'm resorting to putting a spacer there to mimic the label in the unset div.
+					var setDailyDoubleSpacer = this.createAndAppendToDom("div", setDailyDoubleDiv);
+					$(setDailyDoubleSpacer).addClass("setDailyDoubleSpacer");
+					
+					// This in this place is more for syntactic purposes. Normally, I wouldn't want to separate the declaration from the initialization.
+					var setDailyDoubleButton = new GameButtonWithController(this.controller);
+				
+				var unsetDailyDoubleDiv = this.createAndAppendToDom("div", editQuestionDiv);
+				$(unsetDailyDoubleDiv).addClass("unsetDailyDouble");
+				// Ugh. So, apparently adding an element to a hidden one removes the display property set by $.hide().
+				// I'll have to move this to later on.
+				//$(unsetDailyDoubleDiv).hide();
+					
+					var dailyDoubleLabelDiv = this.createAndAppendToDom("div", unsetDailyDoubleDiv);
+					$(dailyDoubleLabelDiv).addClass("dailyDoubleLabelDiv");
+						
+						var dailyDoubleLabel = this.createAndAppendToDom("span", dailyDoubleLabelDiv);
+						$(dailyDoubleLabel).addClass("dailyDoubleLabel");
+						$(dailyDoubleLabel).html("Daily Double");
+				
+					var unsetDailyDoubleButton = new GameButtonWithController(this.controller);
+					
+					setDailyDoubleButton.initWith("regularButton setDD", "Daily Double", setDailyDoubleDiv, function(){
+						// The buttons here are completely separate from the Data Set.
+						// We need a way to unset the previous Daily Double before setting the current one.
+						// The easiest way I can think of is setting a class on the row so we can find it later,
+						// or we can just look for all visible unset buttons and press all of them.
+						
+						// Method number two will involve DOM traversal only, and not any DOM manipulation.
+						
+						// First, look for any visible unset buttons and click either all of them or just the first one.
+						// Just clicking one of them should be enough. After all, there should never be more than one visible.
+						$(this.controller.gameBoard.domElement).find("tr .unsetDD:visible").click();
+						
+						// Get selected category
+						// Get row value
+						// Set Daily Double with both
+						
+						var category = $(this.controller.gameBoard.domElement).find(".selectedCol .catDivInsert").html();
+						var value = $(displayRowValue).html();
+						
+						this.controller.currentDataSet.setDailyDouble(category, value);
+						
+						// Hide set container
+						$(setDailyDoubleDiv).hide();
+						// Show unset container
+						$(unsetDailyDoubleDiv).css("display", "");
+						
+						// Bug fix. Resize other button after displaying it.
+						hackFontSize($(unsetDailyDoubleButton.domElement).find("span").get(0));
+						// Also the DD label
+						hackFontSize(dailyDoubleLabel);
+					});
+					unsetDailyDoubleButton.initWith("regularButton unsetDD", "Remove", unsetDailyDoubleDiv, function(){
+						// Unset Daily Double
+						this.controller.currentDataSet.unsetDailyDouble();
+						
+						// Hide unset container
+						$(unsetDailyDoubleDiv).hide();
+						// Show set container
+						$(setDailyDoubleDiv).css("display", "");
+						
+						// Bug fix. Resize other button after displaying it.
+						hackFontSize($(setDailyDoubleButton.domElement).find("span").get(0));
+					});
+				
+				var editQuestionDisplay = new GameButtonWithController(this.controller);
+				editQuestionDisplay.initWith("editQuestionDisplay", "", editQuestionDiv, function(){
+					var ovly = this.controller.gameOverlays[this.controller.gameStates.AnswerQuestion];
+					var thisOvly = this.controller.gameOverlays[this.controller.gameStates.MakeBoard];
+					
+					// take the question text and save it to the controller or game board or overlay.
+					this.controller.gameBoard.editModeQuestionText = $(this.domElement).find("span").html();
+					var currentCol = $(this.controller.gameBoard.domElement).find("." +this.controller.gameBoard.selectedColumnCssClass +" .catDivInsert").html();
+					
+					// Data management update:
+					for (value in this.controller.currentDataSet.questions[currentCol]) {
+						var testForClass = this.controller.gameBoard.qRowCssClassPrefix +value;
+						if ( $(this.domElement).closest("tr").hasClass(testForClass) ) {
+							this.controller.gameBoard.editModeQuestionRow = testForClass;
+						}
+					}
+					
+						// Though, the game board seems like the most logical place for it.
+					// display the (edit mode) Answer Question overlay
+						// either change game mode (and set an 'edit' flag in the game board or the controller.
+						// or shrink it down and put it in the Make Board container.
+							// Though, honestly I think the best thing to do will be to switch to the game state so the user can preview the full display of the question,
+							// as it would be in the actual run-through of the game.
+					$(ovly.domElement).find(".previewQuestionSpan").html(this.controller.gameBoard.editModeQuestionText);
+					ovly.enterEditMode().show();
+					thisOvly.hide();
+					
+					$(window).trigger("resize");
+				});
+				
+				// I didn't want to do this here, but I have to to hide the element.
+				$(unsetDailyDoubleDiv).hide();
 		
 		$(function() {
 		    $(editRowValue).on('keydown', function(event) {
@@ -2329,7 +2605,7 @@ function GameBoardWithController(controller, catRowCssClass, qRowCssClassPrefix,
 		
 		return row;
 	};
-	this.fillWithCategoriesFromController = function() {
+	this.fillWithCategoriesFromController = function(){
 		// Get the categories from the controller.
 		// Data management update:
 		var cats = this.controller.currentDataSet.cats;
@@ -2352,7 +2628,7 @@ function GameBoardWithController(controller, catRowCssClass, qRowCssClassPrefix,
 		}
 		return this;
 	};
-	this.fillWithQuestionRows = function() {
+	this.fillWithQuestionRows = function(){
 		// Data management update:
 		var pointValues = this.controller.currentDataSet.points;
 		
@@ -2364,7 +2640,7 @@ function GameBoardWithController(controller, catRowCssClass, qRowCssClassPrefix,
 			$(this.addRow(this.tableBody, tempClassString)).addClass("jeopQuestionRow");
 		}
 	};
-	this.fillQuestionRowsWithCells = function() {
+	this.fillQuestionRowsWithCells = function(){
 		// Data management update:
 		var pointValues = this.controller.currentDataSet.points;
 		
@@ -2500,6 +2776,22 @@ function GameBoardWithController(controller, catRowCssClass, qRowCssClassPrefix,
 				
 				$(tempRow).find(".editQuestionDisplay span").html(tempQText);
 			}
+			
+			// Daily Double update:
+			// if DD isn't this category, then hide all unsetDailyDouble divs
+			// if it is, then find the row with the right value and show unsetDailyDouble div
+			if (! this.controller.currentDataSet.isDailyDouble(colText, null) ) {
+				$(this.controller.gameBoard.domElement).find(".unsetDailyDouble").hide();
+				$(this.controller.gameBoard.domElement).find(".setDailyDouble").css("display", "");
+			} else {
+				var ddRowValue = this.controller.currentDataSet.dailyDouble.value;
+				var rowPrefix = this.controller.gameBoard.qRowCssClassPrefix +ddRowValue.toString();
+				
+				$(this.controller.gameBoard.domElement).find("." +rowPrefix +" .setDailyDouble").hide();
+				$(this.controller.gameBoard.domElement).find("." +rowPrefix +" .unsetDailyDouble").css("display", "");
+			}
+			
+			$(window).trigger("resize");
 		});
 		
 		// Set drag handlers here
@@ -2712,7 +3004,6 @@ function GameBoardWithController(controller, catRowCssClass, qRowCssClassPrefix,
 			this.questionHtml = this.controller.currentDataSet.questions[getCategoryName][getRowValue];
 			
 			this.log("Question '" +tempCellId +"' selected.");
-			this.log("Changing Game State to 'AnswerQuestion'.");
 			this.log("CurrentQuestion: " +this.questionHtml);
 			
 			this.controller.currentQuestion = this.questionHtml;
@@ -2721,7 +3012,12 @@ function GameBoardWithController(controller, catRowCssClass, qRowCssClassPrefix,
 			
 			$("#"+tempCellId).addClass(prevQClass);
 			
-			this.controller.navPush(this.controller.gameStates.AnswerQuestion);
+			// Check if Daily Double
+			if ( this.controller.currentDataSet.isDailyDouble(getCategoryName, getRowValue) ) {
+				this.controller.navPush(this.controller.gameStates.DailyDouble);
+			} else {
+				this.controller.navPush(this.controller.gameStates.AnswerQuestion);
+			}
 		});
 		$(tempButton.domElement).wrapInner("<span></span>");
 	};
@@ -2787,6 +3083,9 @@ function GameBoardWithController(controller, catRowCssClass, qRowCssClassPrefix,
 		this.tableHead = this.createAndAppendToDom("thead", this.tableMain);
 		this.tableFoot = this.createAndAppendToDom("tfoot", this.tableMain);
 		this.tableBody = this.createAndAppendToDom("tbody", this.tableMain);
+	};
+	this.unsetDailyDouble = function(){
+		this.controller.currentDataSet.unsetDailyDouble();
 	};
 	this.init = function(withName){
 		this.objLogId = withName;
@@ -3090,9 +3389,11 @@ function GameTeam(){
 		// Play Mode buttons
 		addPointsButton.initWith("regularButton addPointsButton", "O", playModeDiv, function(){
 			thisTeam.addPoints( controller.currentQuestionValue );
+			this.controller.playSound(this.controller.gameSounds.correctAnswer);
 		});
 		subPointsButton.initWith("regularButton subPointsButton", "X", playModeDiv, function(){
 			thisTeam.subPoints( controller.currentQuestionValue );
+			this.controller.playSound(this.controller.gameSounds.incorrectAnswer);
 		});
 		
 		// Hide stuff
@@ -3473,12 +3774,16 @@ function GameButtonWithController(controller) {
 function GameCheckboxWithController(controller) {
 	// Properties
 	this.controller = controller;
+	this.control;
 	this.handler = function(){};
 	this.text = "";
 	this.objLogId = "Checkbox";
 	// Methods
-	this.fillCheckbox = function(toControl){
-		this.setupControl(toControl);
+	this.refresh = function(){
+		this.domElement.checked = this.control.getValue();
+	};
+	this.fillCheckbox = function(){
+		this.setupControl();
 		$(this.domElement).change( $.proxy(this.handler, this) );
 		this.label = document.createElement("label");
 		$(this.label).html(this.text);
@@ -3489,24 +3794,35 @@ function GameCheckboxWithController(controller) {
 		$(this.label).prepend(this.domElement);
 		$(toParent).append(this.label);
 	};
-	this.setupControl = function(toControl){
-		if (typeof toControl != "boolean") {
+	this.setupControl = function(){
+		if (typeof this.control.getValue() != "boolean") {
 			this.log("Input not of type 'boolean'. Unable to control option.", logTypes.error);
 		} else {
-			this.domElement.checked = toControl;
+			this.domElement.checked = this.control.getValue();
+			this.tieToOption();
 		}
+	};
+	this.tieToOption = function(){
+		$(this.domElement).change( $.proxy(function(){
+// 			this.control = this.domElement.checked;
+			this.control.toggle();
+		}, this) );
 	};
 	this.init = function(){
 		this.domElement = document.createElement("input");
 		$(this.domElement).attr("type", "checkbox");
+		
+		this.controller.optionCheckboxes.push(this);
+		
 		return this;
 	};
-	this.initWith = function(cssClass, text, parentElem, boolToControl, handler) {
+	this.initWith = function(cssClass, text, parentElem, GameBool, handler) {
 		this.init();
 		this.text = text;
 		this.addClassToDomElement(cssClass);
 		this.handler = handler || this.handler;
-		this.fillCheckbox(boolToControl);
+		this.control = GameBool;
+		this.fillCheckbox();
 		// We will use a special implementation of 'appendToDom'.
 		this.appendToDom(parentElem);
 		return this;
@@ -3528,12 +3844,21 @@ function GameDatasetWithController(controller) {
 	this.backupCats = null;
 	this.backupPoints = null;
 	this.backupQuestions = null;
+	this.backupDailyDouble = null;
+	
+	this.dailyDouble = {
+		"category": "",
+		"value": 0
+	};
 	
 	this.dataPrefix = "";
 	this.catsSuffix = "Cats";
 	this.totalSuffix = "Total";
 	this.pointsSuffix = "Points";
 	this.qDictSuffix = "Data";
+	this.dailyDoubleSuffix = "DailyDouble";
+	this.dailyDoubleCatSuffix = "Cat";
+	this.dailyDoublePtsSuffix = "Pts";
 	this.delim = "$";
 	
 	// Private methods
@@ -3831,6 +4156,10 @@ function GameDatasetWithController(controller) {
 			}
 		}
 		
+		// Save Daily Double
+		localStorage.setItem( this.dataPrefix +this.delim +this.dailyDoubleSuffix +this.delim +this.dailyDoubleCatSuffix , this.dailyDouble.category);
+		localStorage.setItem( this.dataPrefix +this.delim +this.dailyDoubleSuffix +this.delim +this.dailyDoublePtsSuffix , this.dailyDouble.value);
+		
 		return true;
 	};
 	this.getSavedData = function(){
@@ -3843,6 +4172,10 @@ function GameDatasetWithController(controller) {
 		tempData.cats = [];
 		tempData.points = [];
 		tempData.qDict = {};
+		tempData.dailyDouble = {
+			"category": "",
+			"value": 0
+		};
 		
 // 		var tempVarCats = localStorage.getItem(this.dataPrefix +this.delim +this.catsSuffix);
 		
@@ -3867,6 +4200,10 @@ function GameDatasetWithController(controller) {
 			}
 		}
 		
+		// Get Daily Double
+		tempData.dailyDouble.category = localStorage.getItem( this.dataPrefix +this.delim +this.dailyDoubleSuffix +this.delim +this.dailyDoubleCatSuffix );
+		tempData.dailyDouble.value = localStorage.getItem( this.dataPrefix +this.delim +this.dailyDoubleSuffix +this.delim +this.dailyDoublePtsSuffix );
+		
 		return tempData;
 	};
 	this.loadData = function(){
@@ -3879,6 +4216,11 @@ function GameDatasetWithController(controller) {
 		this.cats = tempData.cats;
 		this.points = tempData.points;
 		this.questions = tempData.qDict;
+		
+// 		this.setDailyDouble(tempData.dailyDouble.category, tempData.dailyDouble.value);
+		// That was backing up the data and causing data loss later. Let's set by hand instead.
+		this.dailyDouble.category = tempData.dailyDouble.category;
+		this.dailyDouble.value = parseInt(tempData.dailyDouble.value);
 		
 		return true;
 	};
@@ -4301,7 +4643,13 @@ function GameDatasetWithController(controller) {
 				return false;
 			}
 			
+			this.backupPointsData();
 			var oldValue = this.points.splice(parsedIndex, 1, newValue +"");
+			
+			// Update Daily Double if needed
+			if ( this.isDailyDouble(null, parseInt(oldValue)) ) {
+				this.setDailyDouble(null, parseInt(newValue));
+			}
 			
 			this.backupQuestionsData();
 			for (i=0;i<this.cats.length;i++) {
@@ -4346,7 +4694,12 @@ function GameDatasetWithController(controller) {
 			return false;
 		} else {
 			this.backupCatsData();
-			var oldName = this.cats.splice(parsedIndex, 1, newName +"");
+			var oldName = this.cats.splice(parsedIndex, 1, newName +"")[0];
+			
+			// Update Daily Double if needed
+			if ( this.isDailyDouble(oldName, null) ) {
+				this.setDailyDouble(newName, null);
+			}
 			
 			this.backupQuestionsData();
 			this.questions[newName] = this.questions[oldName];
@@ -4371,9 +4724,13 @@ function GameDatasetWithController(controller) {
 		this.log("Canceling changes.");
 		this.clickDoneButton();
 		
+		// All of these checks directly checked for the existence of the backups.
+		// But isn't that what the 'isChanged' functions do? Why not just use those functions to check if they've been changed.
+		
 		// The only thing that really need to be done is restore the backups (if they exist) into the main working properties.
 		// If name has been changed (backup exists),
-		if (this.backupName != null) {
+// 		if (this.backupName != null) {
+		if (this.nameChanged()) {
 			
 			// Undo the database changes done by the name change.
 			this.controller.changeDataSetName(this.name, this.backupName);
@@ -4386,7 +4743,8 @@ function GameDatasetWithController(controller) {
 		}
 		
 		// If cats have been changed (backup exists),
-		if (this.backupCats != null) {
+// 		if (this.backupCats != null) {
+		if (this.catsChanged()) {
 			// Move it back.
 			this.cats = $.extend([], this.backupCats);
 			
@@ -4395,7 +4753,8 @@ function GameDatasetWithController(controller) {
 		}
 		
 		// If points have been changed (backup exists),
-		if (this.backupPoints != null) {
+// 		if (this.backupPoints != null) {
+		if (this.rowsChanged()) {
 			// Move it back.
 			this.points = $.extend([], this.backupPoints);
 			
@@ -4404,12 +4763,23 @@ function GameDatasetWithController(controller) {
 		}
 		
 		// If questions have been changed (backup exists),
-		if (this.backupQuestions != null) {
+// 		if (this.backupQuestions != null) {
+		if (this.questionsChanged()) {
 			// Move it back.
 			this.questions = $.extend({}, this.backupQuestions);
 			
 			// Remove backup.
 			this.backupQuestions = null;
+		}
+		
+		// If daily double has been changed (backup exists),
+// 		if (this.backupDailyDouble != null) {
+		if (this.dailyDoubleChanged()) {
+			// Move it back.
+			this.dailyDouble = $.extend({}, this.backupDailyDouble);
+			
+			// Remove backup.
+			this.backupDailyDouble = null;
 		}
 		
 		this.updateDisplayInfo();
@@ -4454,6 +4824,7 @@ function GameDatasetWithController(controller) {
 		this.backupCats = null;
 		this.backupPoints = null;
 		this.backupQuestions = null;
+		this.backupDailyDouble = null;
 		
 		// Update anything that needs updating.
 			// Like maybe resetting DOM elements,
@@ -4480,6 +4851,74 @@ function GameDatasetWithController(controller) {
 	this.unmarkAsCurrent = function(){
 		$(this.domElement).removeClass("current");
 	};
+	
+	// Daily Double
+	this.setDailyDouble = function(category, value){
+		// This method has a feature where if one parameter is null,
+		// then it will update only the other value.
+		
+		// First, backup as necessary.
+		this.backupDailyDoubleData();
+		
+		// Bug fix. added (&& value != null) to expression. This will exclude null from anything else that triggers NaN.
+		if (typeof category == "undefined" || typeof value == "undefined" || category == "" || parseInt(value) == 0 || ( parseInt(value).toString() == "NaN" && value != null ) ) {
+			this.unsetDailyDouble();
+		}
+		
+		if (category != null) {
+			this.dailyDouble.category = category +"";
+		}
+		
+		if (value != null) {
+			this.dailyDouble.value = parseInt(value);
+		}
+	};
+	this.unsetDailyDouble = function(){
+		this.backupDailyDoubleData();
+		
+		this.dailyDouble.category = "";
+		this.dailyDouble.value = 0;
+	};
+	this.isDailyDouble = function(_category, _value){
+		// This method has a feature where if you pass in null for one of the parameters,
+		// then it will check if the other one is part of the DD.
+		
+		// This will be useful for checking in other methods whether or not only one of the values needs to be changed.
+		
+		if (_category == null && _value == null) {
+			return;
+		} else if (_category != null && _value == null && _category === this.dailyDouble.category) {
+			return true;
+		} else if (_category == null && _value != null && parseInt(_value) === this.dailyDouble.value) {
+			return true;
+		} else if ( this.dailyDouble.category === _category && this.dailyDouble.value === parseInt(_value) ) {
+			return true;
+		} else {
+			return false;
+		}
+	};
+	this.backupDailyDoubleData = function(){
+		if ( this.dailyDoubleChanged() ) {
+			return false;
+		} else {
+/*
+			this.backupDailyDouble = {
+				"category": this.dailyDouble.category + "";
+				"value": this.dailyDouble.value +0;
+			};
+*/
+			this.backupDailyDouble = $.extend({}, this.dailyDouble);
+			
+			return true;
+		}
+	};
+	this.dailyDoubleChanged = function(){
+		if ( this.backupDailyDouble == null ) {
+			return false;
+		} else {
+			return true;
+		}
+	};
 }
 
 GameController.prototype = gameObjectPrototype;
@@ -4490,7 +4929,7 @@ GameButtonWithController.prototype = gameObjectPrototype;
 GameCheckboxWithController.prototype = gameObjectPrototype;
 GameDatasetWithController.prototype = gameObjectPrototype;
 
-function GameColor(R, G, B, colorName) {
+function GameColor(R, G, B, colorName){
 	this.colorName = colorName || null;
 	this.rgb = {
 		"r":R.toString(),
@@ -4559,7 +4998,26 @@ function GameColor(R, G, B, colorName) {
 	};
 }
 
-function makeStruct(names) {
+// Here's another experiment. I was looking at changing boolean options by attaching variables to a reference.
+// Apparently, I can't do that, since booleans are primitives and therefore are not ever passed by variable reference.
+// So, can I make an object that represents a boolean value?
+function GameBool(initBool){
+	this.value = initBool;
+	
+	this.getValue = function(){
+		return this.value;
+	};
+	this.setValue = function(newValue){
+		this.value = newValue;
+		return this.value;
+	};
+	this.toggle = function(){
+		this.value = ! this.value;
+		return this.value;
+	};
+}
+
+function makeStruct(names){
   var names = names.split(' ');
   var count = names.length;
   function constructor() {
@@ -4639,7 +5097,8 @@ function hackStyle(){
 		cellHeight = Math.floor(cellHeight);
 		
 		$(ovly.domElement).find("td, th").outerWidth(cellWidth).outerHeight(cellHeight);
-		$(ovly.domElement).find(".editMode:visible .editRowButtons").outerHeight(cellHeight);
+		$(ovly.domElement).find(".editMode:visible").outerHeight(cellHeight);
+// 		$(ovly.domElement).find(".editMode:visible .editRowButtons").outerHeight(cellHeight);
 		
 		$(ovly.domElement).find(".editMode:visible .editRowButtons").css("margin",(0.5 * totalCellHorizMar / numberOfCols ) + "px");
 		
@@ -4697,6 +5156,18 @@ function hackStyle(){
 		"));
 	}
 	
+	// DailyDoubleScreen Display Resizing
+	dontResize = false;
+	ovly = controller.gameOverlays[controller.gameStates.DailyDouble] || null;
+	if (controller == null || ovly == null || ! $(ovly.domElement).is(":visible")) dontResize = true;
+	
+	if (! dontResize) {
+		hackFontSize(" \
+		.dailyDoubleLabel, \
+		.dailyDoubleWagerInput \
+		");
+	}
+	
 	// SelectQuestionScreen Display Resizing
 	dontResize = false;
 	ovly = controller.gameOverlays[controller.gameStates.SelectQuestion] || null;
@@ -4706,7 +5177,8 @@ function hackStyle(){
 		hackFontSize($(" \
 		.editMode .editRowButtons .wrapValue .displayRowValue, \
 		.editMode .editRowButtons .wrapValue .editRowValue, \
-		.editMode .editRowButtons .grabHandle span \
+		.editMode .editRowButtons .grabHandle span, \
+		.editMode .dailyDoubleLabel \
 		"));
 	}
 	

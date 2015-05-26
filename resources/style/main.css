@@ -579,14 +579,46 @@ body,
 	display: inline-block;
 	vertical-align: top;
 }
-#SelectQuestionScreenOvly .editMode .editQuestionDisplay {
+#SelectQuestionScreenOvly .editMode .setDailyDouble,
+#SelectQuestionScreenOvly .editMode .unsetDailyDouble {
+	width: 20%;
+	height: 100%;
+	display: inline-block;
+	box-sizing: border-box;
+	padding: 0px 5px;
+}
+#SelectQuestionScreenOvly .editMode .setDailyDouble {
+	background-color: none;
+}
+#SelectQuestionScreenOvly .editMode .setDailyDouble .setDailyDoubleSpacer,
+#SelectQuestionScreenOvly .editMode .unsetDailyDouble .dailyDoubleLabelDiv {
 	width: 100%;
+	height: 50%;
+	box-sizing: border-box;
+/* 	padding: 5px; */
+}
+#SelectQuestionScreenOvly .editMode .setDailyDouble .dailyDoubleLabelDiv .dailyDoubleLabel {
+	
+}
+#SelectQuestionScreenOvly .editMode .unsetDailyDouble .regularButton,
+#SelectQuestionScreenOvly .editMode .setDailyDouble .regularButton {
+	height: 50%;
+	width: 100%;
+	vertical-align: bottom;
+	margin: 0px;
+}
+#SelectQuestionScreenOvly .editMode .unsetDailyDouble {
+	background-color: red;
+}
+#SelectQuestionScreenOvly .editMode .unsetDailyDouble {}
+#SelectQuestionScreenOvly .editMode .editQuestionDisplay {
+	width: 80%;
 	height: 100%;
 /* 	float: right; */
 	background-color: white;
 	color: black;
 	text-align: left;
-	vertical-align: text-top;
+	vertical-align: top;
 }
 #SelectQuestionScreenOvly .editMode .editRowButtons {
 	text-align: left;
@@ -686,6 +718,37 @@ body,
 }
 #SelectQuestionScreenOvly .gameCategories th.selectedCol .catDiv {
 	border-color: red;
+}
+
+/*************************************/
+
+#DailyDoubleScreenOvly {
+	background-color: red;
+}
+#DailyDoubleScreenOvly div {
+	border: 0px;
+	margin: 0px;
+}
+#DailyDoubleScreenOvly .dailyDoubleLabelDiv {
+	height: 80%;
+}
+#DailyDoubleScreenOvly .dailyDoubleWagerDiv {
+	height: 20%;
+}
+#DailyDoubleScreenOvly .dailyDoubleWagerInput {
+	color: black;
+	height: 100%;
+	border: 0px;
+	padding: 2px;
+	margin: 0px;
+	margin-right: 5px;
+	width: calc(80% - 5px);
+	box-sizing: border-box;
+}
+#DailyDoubleScreenOvly .dailyDoubleWagerDiv .regularButton {
+	width: 20%;
+	height: 100%;
+	margin: 0px;
 }
 
 /*************************************/
@@ -924,8 +987,13 @@ body,
 */
 /*************************************/
 
-#OptionsScreenOvly .dataDiv .optionAutoTeams,
-#OptionsScreenOvly .optionControls .optionAutoTeams {
+#OptionsScreenOvly .dataDiv .optionsDiv label {
+	display: inline-block;
+	box-sizing: border-box;
+	margin-right: 20px;
+}
+
+#OptionsScreenOvly .dataDiv .optionsDiv .optionCheckbox {
 	/***** Position *****/
 	margin-right: 5px;
 	/***** Style *****/
