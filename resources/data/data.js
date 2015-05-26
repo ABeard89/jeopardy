@@ -26,7 +26,7 @@ var categoriesToImport = {
 					"Default Question"]
 }
 
-/* Template. Your data should look like the following:
+/* Template.
 
 var pointsToImport = ["10", "20", "30", "50", "100"];
 
