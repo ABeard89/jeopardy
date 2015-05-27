@@ -2211,12 +2211,18 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		this.soundsList.push(name);
 		this.updateSounds();
 		
+/*
 		this.sounds[ this.gameSounds[name] ] = this.createAndAppendToDom("audio", this.containerId);
 		this.sounds[ this.gameSounds[name] ].id = name;
 		$(this.sounds[ this.gameSounds[name] ]).attr({
 			src: relFilePath,
 			preload: "auto"
 		});
+*/
+		
+		this.sounds[ this.gameSounds[name] ] = new Audio(relFilePath);
+		this.sounds[ this.gameSounds[name] ].id = name;
+		$(this.containerId).append(this.sounds[ this.gameSounds[name] ]);
 	};
 	this.updateSounds = function(){
 		var listString = "";
@@ -2224,6 +2230,8 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		for (i=0;i<this.soundsList.length;i++) {
 			listString = listString +this.soundsList[i] +" ";
 		}
+		
+		listString = listString.replace(/(.*) /g, "$1");
 		
 		var GameSounds = makeStruct(listString);
 		this.gameSounds = new GameSounds();
@@ -2237,7 +2245,9 @@ function GameController(pointsArray, categoriesDict, containerId) {
 	this.stopSounds = function(){
 		for (sound in this.sounds) {
 			this.sounds[sound].pause();
-			this.sounds[sound].currentTime = 0;
+			$(this.sounds[sound]).one("canplay", function(e){
+				this.currentTime = 0;
+			});
 		}
 	};
 	
@@ -5097,6 +5107,7 @@ function hackStyle(){
 		cellHeight = Math.floor(cellHeight);
 		
 		$(ovly.domElement).find("td, th").outerWidth(cellWidth).outerHeight(cellHeight);
+		$(ovly.domElement).find("tr").outerHeight(cellHeight);
 		$(ovly.domElement).find(".editMode:visible").outerHeight(cellHeight);
 // 		$(ovly.domElement).find(".editMode:visible .editRowButtons").outerHeight(cellHeight);
 		
