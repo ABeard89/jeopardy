@@ -221,6 +221,7 @@ function GameController(pointsArray, categoriesDict, containerId) {
 	
 	this.currentDataSet = {};
 	
+	// Sound initialization items
 	var soundsToLoad = {
 		themeSong: "resources/sounds/1MIN_FINAL_JEOPARDY.mp4",
 		dailyDoubleSong: "resources/sounds/Jeopardy-daily2x.mp3",
@@ -228,9 +229,14 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		correctAnswer: "resources/sounds/FamilyFeud-Bell.mp3",
 		incorrectAnswer: "resources/sounds/FamilyFeud-Buzzer3.mp3"
 	};
-	this.sounds = {};
 	this.soundsList = [];
+	
+	// indexed list of sound DOM elements
+	this.sounds = {};
+	// name-index key-value pairs for sounds
 	this.gameSounds;
+	// indexed list of flags indicating that a sound is loaded.
+	this.soundsReady = {};
 	
 	// Note that $.extend(true, {}, obj) is used to make a deep copy of a variable, instead of passing by reference.
 // 	this.newOptions = $.extend(true, {}, this.options);
@@ -2211,18 +2217,15 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		this.soundsList.push(name);
 		this.updateSounds();
 		
-/*
-		this.sounds[ this.gameSounds[name] ] = this.createAndAppendToDom("audio", this.containerId);
-		this.sounds[ this.gameSounds[name] ].id = name;
-		$(this.sounds[ this.gameSounds[name] ]).attr({
-			src: relFilePath,
-			preload: "auto"
-		});
-*/
-		
 		this.sounds[ this.gameSounds[name] ] = new Audio(relFilePath);
 		this.sounds[ this.gameSounds[name] ].id = name;
+		
+		this.soundsReady[ this.gameSounds[name] ] = false;
+		
 		$(this.containerId).append(this.sounds[ this.gameSounds[name] ]);
+		$(this.sounds[ this.gameSounds[name] ]).one("canplay", $.proxy(function(){
+			this.soundsReady[ this.gameSounds[name] ] = true;
+		}, this));
 	};
 	this.updateSounds = function(){
 		var listString = "";
@@ -2243,11 +2246,13 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		}
 	};
 	this.stopSounds = function(){
-		for (sound in this.sounds) {
-			this.sounds[sound].pause();
-			$(this.sounds[sound]).one("canplay", function(e){
-				this.currentTime = 0;
-			});
+		for (item in this.sounds) {
+			// 'sounds' and 'soundsReady' share the same indices.
+			// This method should have no problems.
+			if (this.soundsReady[item] == true) {
+				this.sounds[item].pause();
+				this.sounds[item].currentTime = 0;
+			}
 		}
 	};
 	
