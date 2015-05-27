@@ -85,7 +85,7 @@ var gameObjectPrototype = {
 		return jQueryElement;
 	},
 	addPlayModeContainer: function(toParent, optPrependBool){
-		var playModeDiv = this.createAndAppendToDom("span", toParent, optPrependBool);
+		var playModeDiv = this.createAndAppendToDom("div", toParent, optPrependBool);
 		$(playModeDiv).addClass("playMode");
 		return playModeDiv;
 	},
