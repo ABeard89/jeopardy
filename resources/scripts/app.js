@@ -6,7 +6,7 @@ var ErrorCodes = makeStruct("info warning error");
 var logTypes = new ErrorCodes();
 var loggingEnabled = true;
 
-var browserIsCompleteShit = /^.*MSIE.*$/.test(navigator.userAgent);
+var isInternetExplorer = /^.*MSIE.*$/.test(navigator.userAgent);
 
 
 var gameObjectPrototype = {
@@ -260,7 +260,7 @@ function GameController(pointsArray, categoriesDict, containerId) {
 				this.gameOverlays[this.gameStates.Info].show();
 				
 				// IE workaround. Alternate AJAX request that actually works in IE
-				if (browserIsCompleteShit) {
+				if (isInternetExplorer) {
 					var request = new ActiveXObject("MSXML2.XMLHTTP.6.0");
 					request.open("GET", "./"+this.htmlFileToLoad, false);
 					request.send();
@@ -525,7 +525,7 @@ function GameController(pointsArray, categoriesDict, containerId) {
 					
 					var dailyDoubleWagerInput = this.createAndAppendToDom("input", dailyDoubleWagerDiv);
 					$(dailyDoubleWagerInput).addClass("dailyDoubleWagerInput");
-					if (browserIsCompleteShit) {
+					if (isInternetExplorer) {
 						dailyDoubleWagerInput.type = "text";
 					} else {
 						dailyDoubleWagerInput.type = "number";
@@ -818,7 +818,7 @@ function GameController(pointsArray, categoriesDict, containerId) {
 		var createTeamsFieldPoints = this.createAndAppendToDom("input", createTeamsForm);
 		
 		// IE workaround. "Number" type not supported.
-		if ( browserIsCompleteShit ) {
+		if ( isInternetExplorer ) {
 			createTeamsFieldPoints.type = "text";
 		} else {
 			createTeamsFieldPoints.type = "number";
@@ -1230,7 +1230,7 @@ function GameController(pointsArray, categoriesDict, containerId) {
 						var rowPoints = this.createAndAppendToDom("input", addRowForm);
 						
 						// IE workaround. "Number" type not supported.
-						if ( browserIsCompleteShit ) {
+						if ( isInternetExplorer ) {
 							rowPoints.type = "text";
 						} else {
 							rowPoints.type = "number";
@@ -2425,7 +2425,7 @@ function GameBoardWithController(controller, catRowCssClass, qRowCssClassPrefix,
 				
 					var editRowValue = this.createAndAppendToDom("input", wrapValueDiv);
 					$(editRowValue).addClass("editRowValue");
-					if (browserIsCompleteShit) {
+					if (isInternetExplorer) {
 						editRowValue.type = "text";
 					} else {
 						editRowValue.type = "number";
@@ -3235,7 +3235,7 @@ function GameTeam(){
 				// Team Score Editing Input
 				var editPointsInput = this.createAndAppendToDom("input", teamInfoInsert);
 				editPointsInput.placeholder = "Edit Points";
-				if (browserIsCompleteShit) {
+				if (isInternetExplorer) {
 					editPointsInput.type = "text";
 				} else {
 					editPointsInput.type = "number";
