@@ -1,4 +1,4 @@
-var versionNumber = "1.0.1";
+var versionNumber = "1.0.0";
 var adminEmail = "anthony.beard89@gmail.com";
 var githubLink = "https://github.com/ABeard89/jeopardy";
 
