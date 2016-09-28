@@ -3713,6 +3713,7 @@ function GameTeam(){
 		}
 		
 		this.teamPoints = tempData.teamPoints;
+		this.updatePoints();
 		
 		if (typeof controller.teamColors[tempData.teamColor.colorName] == "undefined") {
 			controller.addTeamColor(tempData.teamColor.colorName, tempData.teamColor.r, tempData.teamColor.g, tempData.teamColor.b);
